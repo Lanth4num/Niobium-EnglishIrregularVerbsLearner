@@ -1,0 +1,20 @@
+{
+  "name": "Niobium - English Irregular Verbs Learner",
+  "version": "1.0.0",
+  "description": "First Test Verbs app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager ."
+  },
+  "author": "Becker Adrien",
+  "license": "MIT",
+  "dependencies": {
+    "electron-packager": "^17.1.1",
+    "math": "^0.0.3",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^22.0.0"
+  }
+}
