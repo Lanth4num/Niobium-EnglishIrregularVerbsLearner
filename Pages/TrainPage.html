@@ -284,7 +284,7 @@
         for(rowKey of Object.keys(obj)){
           let tenseKeyNumber = 0;
           for(tenseKey of Object.keys(obj[rowKey])){
-            if(obj[rowKey][tenseKey] == Test[i][tenseKey]){
+            if((obj[rowKey][tenseKey]).trim() == Test[i][tenseKey]){
               //if the verb is correct
               grade++;
               valueToTextNode(i, tenseKeyNumber, true);
