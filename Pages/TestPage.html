@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>Test</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   </head>
   <body>
@@ -17,11 +18,159 @@
         </div>
       </nav>
     </header>
-    <h1>NOT YET IMPLEMENTED<br>
-    </h1>
+    <div class="container z-depth-5" id="FormBox">
+      <form id="Form">
+        <div class="container" id="numberRange">
+          18 Verbs
+        </div>
+          <p class="range-field">
+            <input name="numberOfVerbs" type="range" id="test5" min="5" max="30" onchange="changeNumber(this.value)" />
+          </p>
+           <p>
+             <label>
+               <input name="group1" type="radio" value="easy"/>
+               <span>Only Infinitive</span>
+             </label>
+           </p>
+           <p>
+             <label>
+               <input name="group1" type="radio" value="medium"/>
+               <span>Only Preterit</span>
+             </label>
+           </p>
+           <p>
+             <label>
+               <input class="with-gap" name="group1" type="radio" checked  value=""/>
+               <span>Only Past participle</span>
+             </label>
+           </p>
+           <p>
+             <label>
+               <input class="with-gap" name="group1" type="radio" checked  value="hard"/>
+               <span>Only Translation</span>
+             </label>
+           </p>
+           <p>
+             <label>
+               <input class="with-gap" name="group1" type="radio" checked  value=""/>
+               <span>Random</span>
+             </label>
+           </p>
+          <div class="container" id="selectListContainer">
+            <div class="input-field col s12" id="selectVerbList">
+              <select multiple name="Lists"></select>
+            </div>
+            <a id="reloadButton"class="btn-floating btn-small waves-effect waves-light" onclick="applyList()"><i class="material-icons">refresh</i></a>
+          </div>
+          <button class="btn waves-effect waves-light" id="createButton" type="submit" form="Form">Create</button>
+      </form>
+    </div>
     <style>
-      
+      #selectListContainer{
+        position:fixed;
+        width: 30%;
+        right: 10%;
+        top:25%;
+      }
+      #reloadButton{
+        position: absolute;
+        width: 16.6666666666;
+        bottom: 50%;
+        right: 0;
+        transform: translate(0,50%);
+        display: inline-block;
+      }
+      #numberRange{
+        position: relative;
+        top: 10px;
+        text-align: center;
+      }
+      #radioDificulty{
+        position: relative;
+        left: 10%;
+      }
+      #createButton{
+        position: relative;
+        left: 50%;
+        bottom: 10px;
+        transform: translate(-50%, 0);
+      }
+      #selectVerbList{
+        width: 83.33333333%;
+      }
+      #FormBox{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+      document.querySelector('#Form').addEventListener('submit', (e)=>{
+        e.preventDefault();
+        let obj = {"difficulty":{}};
+        for( element of e.target.elements){
+          if(element.name != ""){
+            switch(element.getAttribute("type")){
+              case "checkbox" : obj[element.value] = element.checked;break;
+              case "radio" : obj["difficulty"][element.value] = element.checked;break;
+              case "range" : obj[element.name] = parseInt(element.value);break;
+              default : obj["Lists"] = M.FormSelect.getInstance(element).getSelectedValues();
+            }
+          }
+        }
+        createTestPDF(obj);
+        e.target.hidden = true;
+      });
+
+      async function createTestPDF(object){
+        const value = await window.eAPI.trainCreator(object);
+        console.log(value);
+      }
+
+
+      function changeNumber(number){
+          document.getElementById("numberRange").innerHTML = number + " Verbs";
+      }
+      //function to make the select list match list file
+      async function applyList(){
+        //remove all children of select
+        removeAllChild(document.querySelector('#selectVerbList select'));
+        const arr = await window.eAPI.listsGetter();
+        for(file of arr){
+          //add filename to the dropdown with the value of i
+          addElement('option', document.querySelector('#selectVerbList select'), file.replace('.xlsx', '')).setAttribute('value', file.toString());
+        }
+        document.querySelector('#selectVerbList select').firstElementChild.setAttribute('selected', '');
+
+        let elems = document.querySelectorAll('select');
+        let selectInstance = M.FormSelect.init(elems, {dropdownOptions:{hover:true}});
+
+        let elem = document.querySelector('.dropdown-trigger');
+        let dropdownInstance = M.Dropdown.getInstance(elem);
+        dropdownInstance.recalculateDimensions();
+      }
+
+      function removeAllChild(parentNode){
+        while(parentNode.hasChildNodes()){
+          parentNode.removeChild(parentNode.firstChild);
+        }
+        return parentNode;
+      }
+
+      //add Element function (element to add, parent node, text node)
+      function addElement(element, parent, text=''){
+        let newElement = document.createElement(element);
+        let newTextNode = document.createTextNode(text);
+        newElement.appendChild(newTextNode);
+        parent.appendChild(newElement);
+        return newElement;
+      }
+
+      window.onload = async ()=>{
+        await applyList();
+      }
+    </script>
   </body>
 </html>

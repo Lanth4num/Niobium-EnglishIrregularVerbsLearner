@@ -3,7 +3,8 @@ const url = require('url');
 const path = require('path');
 const fs = require('fs');
 const XLSX = require('xlsx');
-const Math = require('math')
+const Math = require('math');
+const pdfmake = require('pdfmake');
 
 const{app, BrowserWindow, ipcMain} = electron;
 
