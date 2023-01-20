@@ -37,31 +37,31 @@
         </div>
            <p>
              <label>
-               <input name="group1" type="radio" value="easy"/>
+               <input name="group1" type="radio" value="Infinitive"/>
                <span>Only Infinitive</span>
              </label>
            </p>
            <p>
              <label>
-               <input name="group1" type="radio" value="medium"/>
+               <input name="group1" type="radio" value="Preterit"/>
                <span>Only Preterit</span>
              </label>
            </p>
            <p>
              <label>
-               <input class="with-gap" name="group1" type="radio" checked  value=""/>
+               <input class="with-gap" name="group1" type="radio" value="PastParticiple"/>
                <span>Only Past participle</span>
              </label>
            </p>
            <p>
              <label>
-               <input class="with-gap" name="group1" type="radio" checked  value="hard"/>
+               <input class="with-gap" name="group1" type="radio" value="Translation"/>
                <span>Only Translation</span>
              </label>
            </p>
            <p>
              <label>
-               <input class="with-gap" name="group1" type="radio" checked  value=""/>
+               <input class="with-gap" name="group1" type="radio" checked  value="Random"/>
                <span>Random</span>
              </label>
            </p>
@@ -185,14 +185,23 @@
 
       document.querySelector('#Form').addEventListener('submit', (e)=>{
         e.preventDefault();
-        let obj = {"difficulty":{}};
+        let obj = {};
         for( element of e.target.elements){
           if(element.name != ""){
             switch(element.getAttribute("type")){
-              case "checkbox" : obj[element.value] = element.checked;break;
-              case "radio" : obj["difficulty"][element.value] = element.checked;break;
-              case "range" : obj[element.name] = parseInt(element.value);break;
-              default : obj["Lists"] = M.FormSelect.getInstance(element).getSelectedValues();
+              case "checkbox" : 
+                obj[element.value] = element.checked;
+                break;
+              case "radio" : 
+                if(element.checked){
+                  obj["GivenVerbs"] = element.value;
+                }
+                break;
+              case "range" :
+                obj[element.name] = parseInt(element.value);
+                break;
+              default :
+                obj["Lists"] = M.FormSelect.getInstance(element).getSelectedValues();
             }
           }
         }
@@ -207,7 +216,15 @@
         Test = value;
         let z=0;    
         for(verb of value){
-          let a = Math.floor(Math.random() * 4);
+          let a;
+          switch(object["GivenVerbs"]){
+            case "Infinitive": a = 0 ;break;
+            case "Preterit": a = 1 ;break;
+            case "PastParticiple": a = 2 ;break;
+            case "Translation": a = 3; break;
+            case "Random": a = Math.floor(Math.random() * 4);break;
+            default :  a = Math.floor(Math.random() * 4);break;
+          }
           finalObj["row" + z.toString()] = {};
           Object.keys(verb).forEach(key => {
             finalObj["row"+ z.toString()][key] = "";
