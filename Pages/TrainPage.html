@@ -144,8 +144,26 @@
       //for Check Button
       let functionForCorrection = (e)=>{correct(e.target)};
       let Test;
+
       function changeNumber(number){
           document.getElementById("numberRange").innerHTML = number + " Verbs";
+      }
+
+      function lineCorrection(e){
+        let rowElement = e;
+        let rowValueArr = [];
+        let number =0;
+        
+        
+        if(e.value != ""){
+          while(rowElement.tagName != "TR"){
+            rowElement = rowElement.parentElement;
+          }
+          rowElement.querySelectorAll("td input").forEach((inputField)=>{number += inputField.value == "" ? 0 : 1});
+          if(number == rowElement.querySelectorAll("td input").length){
+            console.log("line is complete");
+          }
+        }
       }
 
       //function to make the select list match list file
@@ -183,6 +201,7 @@
         return newElement;
       }
 
+      //when the preferences are selected
       document.querySelector('#Form').addEventListener('submit', (e)=>{
         e.preventDefault();
         let obj = {};
@@ -237,7 +256,7 @@
           }
           z++;
         }
-        let table = objectToTable(finalObj);
+        let table = objectToTable(finalObj, object.autocorrect);
         El = document.querySelector("#tableContainer");
         tableEl = El.appendChild(document.createElement("form")).appendChild(document.createElement("table"));
         tableEl.setAttribute('class', 'striped centered');
@@ -253,7 +272,7 @@
         button.addEventListener("click", functionForCorrection);
       }
       //Convert the object of createTest into a table
-      function objectToTable(object){
+      function objectToTable(object, autocorrect){
         let tableHeader = document.createElement('thead');
         //set the header
         for(i of Object.keys(object["row0"])){
@@ -280,7 +299,8 @@
               newDivContainer.setAttribute('class', 'input-field');
               let newTextInput = document.createElement('input');
               newTextInput.setAttribute("type", "text");
-              newTextInput.setAttribute("style", "max-height : 60px; color: lightskyblue;")
+              newTextInput.setAttribute("style", "max-height : 60px; color: lightskyblue;");
+              newTextInput.setAttribute("onblur", autocorrect ? "lineCorrection(this)" : undefined);
               newDivContainer.appendChild(newTextInput);
               newData.appendChild(newDivContainer);
             }
@@ -336,7 +356,7 @@
         return Math.round(number * inv) / inv;
       }
 
-      //Function use during correction to transform the input into a text
+      //Function used during correction to transform the input into a text
       function valueToTextNode(row, column, isCorrect, correction = undefined){
         let cellEl = document.querySelectorAll("#tableContainer > form > table > tbody > tr > td")[row*4 + column];
         inputValue = cellEl.querySelector("input").value;
