@@ -14,6 +14,10 @@ const listsPath = app.getPath("appData")+"\\IrVerbsApp\\Lists";
 //function to create PDF test from an object
 async function createPDF(settingObject){
   const doc = new pdfkit({size:"A4"});
+
+  //creating the page Header
+  
+
   //creating the array
   let testObject = await createTest(settingObject);
   let tableData = [];
@@ -23,8 +27,8 @@ async function createPDF(settingObject){
       tableData[i].push(testObject[i][key]);
     }
   }
-  //adding the Header
-  tableData.unshift([])
+  //adding the Table Header
+  tableData.unshift([]);
   for(key of Object.keys(testObject[0])){
     tableData[0].push(key.toString());
   }
