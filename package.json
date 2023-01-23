@@ -12,6 +12,7 @@
   "dependencies": {
     "electron-packager": "^17.1.1",
     "math": "^0.0.3",
+    "pdfkit": "^0.13.0",
     "pdfmake": "^0.2.7",
     "xlsx": "^0.18.5"
   },

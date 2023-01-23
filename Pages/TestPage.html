@@ -125,8 +125,9 @@
       });
 
       async function createTestPDF(object){
-        const value = await window.eAPI.trainCreator(object);
+        const value = await window.eAPI.PDFCreator(object);
         console.log(value);
+        window.location.reload();
       }
 
 
