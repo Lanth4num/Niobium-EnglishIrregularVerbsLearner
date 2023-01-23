@@ -4,12 +4,61 @@ const path = require('path');
 const fs = require('fs');
 const XLSX = require('xlsx');
 const Math = require('math');
-const pdfmake = require('pdfmake');
+const pdfkit = require('pdfkit');
 
-const{app, BrowserWindow, ipcMain} = electron;
+const{app, BrowserWindow, ipcMain, dialog} = electron;
 
 let mainWindow;
 const listsPath = app.getPath("appData")+"\\IrVerbsApp\\Lists";
+
+//function to create PDF test from an object
+async function createPDF(settingObject){
+  const doc = new pdfkit({size:"A4"});
+  //creating the array
+  let testObject = await createTest(settingObject);
+  let tableData = [];
+  for(let i in testObject){
+    tableData.push([]);
+    for(key of Object.keys(testObject[i])){
+      tableData[i].push(testObject[i][key]);
+    }
+  }
+  //adding the Header
+  tableData.unshift([])
+  for(key of Object.keys(testObject[0])){
+    tableData[0].push(key.toString());
+  }
+
+  // set up the table position and size
+  const tableWidth = doc.page.width * 0.85;
+  const cellHeight = 35;
+  const cellWidth = tableWidth / 4;
+  const tableX = (doc.page.width - tableWidth)/2;
+  const tableY = tableX;
+  // loop through the table data and create the cells and borders
+  for (let i = 0; i < tableData.length; i++) {
+    for (let j = 0; j < tableData[i].length; j++) {
+      const x = tableX + (j * cellWidth);
+      const y = tableY + (i * cellHeight);
+      doc.rect(x, y, cellWidth, cellHeight).stroke();
+      let textWidth = doc.widthOfString(tableData[i][j]);
+      let textHeight = doc.heightOfString("u");
+      
+      if(i===0){
+        doc.font("Helvetica-Bold").text(tableData[i][j], x + (cellWidth-textWidth)/2,y + (cellHeight-textHeight/2)/2, {lineBreak: false});
+        doc.font("Helvetica");
+      } else {
+        doc.text(tableData[i][j], x + (cellWidth-textWidth)/2, y + (cellHeight-textHeight/2)/2, {lineBreak: false});
+      }
+    }
+  }
+
+  const pdfPath = dialog.showSaveDialogSync({filters: [{ name: 'PDF', extensions: ['pdf'] }]});
+  doc.pipe(fs.createWriteStream(pdfPath));
+  // end the document
+  doc.end();
+}
+
 
 //function to create a test from an object, an 2 dimensional array is returned
 async function createTest(settingObject){
@@ -35,7 +84,6 @@ async function createTest(settingObject){
       completeArr.splice(a, 1);
     }
   }
-
   // Fix the code so it detect when 2 verbs are the same, in diffrents files
   //chose the verb state
   return finalArr;
@@ -64,6 +112,9 @@ app.on('ready', ()=>{
 
   //IPCMAIN handle dialogs
   ipcMain.handle('checkLists', getLists);
+  ipcMain.handle('createPDF', async (event, settingObject)=>{
+    return createPDF(settingObject);
+  })
   ipcMain.handle('FileToArr', async (event, fileName) => {
     return listFileToArr(fileName);
   });
