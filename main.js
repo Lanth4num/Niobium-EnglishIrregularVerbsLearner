@@ -14,19 +14,43 @@ const listsPath = app.getPath("appData")+"\\IrVerbsApp\\Lists";
 //function to create PDF test from an object
 async function createPDF(settingObject){
   const doc = new pdfkit({size:"A4"});
+  let xPos = 30;
+  let yPos = 30;
+  doc.save();
 
-  //creating the page Header
+  const addTextField = (x, y) => {
+    doc.fillColor('black')
+    .rect(x, y, 100, 0.5)
+    .fill()
+    .stroke();
+    doc.restore();
+  };
   
+  //creating the page Header
+  let Label = "Name:";
+  doc.text(Label, xPos, yPos);
+  addTextField(xPos + doc.widthOfString(Label), yPos + doc.heightOfString(Label)*0.75);
 
   //creating the array
   let testObject = await createTest(settingObject);
   let tableData = [];
   for(let i in testObject){
+    let a;
+    switch(settingObject["GivenVerbs"]){
+      case "Infinitive": a = 0 ;break;
+      case "Preterit": a = 1 ;break;
+      case "PastParticiple": a = 2 ;break;
+      case "Translation": a = 3; break;
+      case "Random": a = Math.floor(Math.random() * 4);break;
+      //setting random as default in case of an issue
+      default :  a = Math.floor(Math.random() * 4);break;
+    }
     tableData.push([]);
     for(key of Object.keys(testObject[i])){
-      tableData[i].push(testObject[i][key]);
+      tableData[i].push(key == Object.keys(testObject[i])[a] ? testObject[i][key] : "");
     }
   }
+
   //adding the Table Header
   tableData.unshift([]);
   for(key of Object.keys(testObject[0])){
@@ -38,21 +62,21 @@ async function createPDF(settingObject){
   const cellHeight = 35;
   const cellWidth = tableWidth / 4;
   const tableX = (doc.page.width - tableWidth)/2;
-  const tableY = tableX;
+  const tableY = tableX + yPos;
   // loop through the table data and create the cells and borders
   for (let i = 0; i < tableData.length; i++) {
     for (let j = 0; j < tableData[i].length; j++) {
-      const x = tableX + (j * cellWidth);
-      const y = tableY + (i * cellHeight);
-      doc.rect(x, y, cellWidth, cellHeight).stroke();
+      let xCell = tableX + (j * cellWidth);
+      let yCell = tableY + (i * cellHeight);
+      doc.rect(xCell, yCell, cellWidth, cellHeight).stroke();
       let textWidth = doc.widthOfString(tableData[i][j]);
       let textHeight = doc.heightOfString("u");
       
       if(i===0){
-        doc.font("Helvetica-Bold").text(tableData[i][j], x + (cellWidth-textWidth)/2,y + (cellHeight-textHeight/2)/2, {lineBreak: false});
+        doc.font("Helvetica-Bold").text(tableData[i][j], xCell + (cellWidth-textWidth)/2,yCell + (cellHeight-textHeight/2)/2, {lineBreak: false});
         doc.font("Helvetica");
       } else {
-        doc.text(tableData[i][j], x + (cellWidth-textWidth)/2, y + (cellHeight-textHeight/2)/2, {lineBreak: false});
+        doc.text(tableData[i][j], xCell + (cellWidth-textWidth)/2, yCell + (cellHeight-textHeight/2)/2, {lineBreak: false});
       }
     }
   }
@@ -89,7 +113,6 @@ async function createTest(settingObject){
     }
   }
   // Fix the code so it detect when 2 verbs are the same, in diffrents files
-  //chose the verb state
   return finalArr;
 }
 
