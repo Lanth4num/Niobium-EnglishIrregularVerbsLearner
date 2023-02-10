@@ -151,18 +151,28 @@
 
       function lineCorrection(e){
         let rowElement = e;
-        let rowValueArr = [];
+        let rowNumber;
         let number =0;
         
         if(e.value != ""){
           while(rowElement.tagName != "TR"){
-            rowElement = rowElement.parentElement;
-          }
+            rowElement = rowElement.parentNode;
+          }          
           rowElement.querySelectorAll("td input").forEach((inputField)=>{number += inputField.value == "" ? 0 : 1});
           if(number == rowElement.querySelectorAll("td input").length){
-            console.log("line is complete");
+            //define the row index (rowNumber)
+            rowNumber = Array.from(rowElement.parentNode.childNodes).indexOf(rowElement);
+            let rowValueArray = tableToObject()["row" + rowNumber];
+            for(key of Object.keys(rowValueArray)){
+              if(rowValueArray[key].trim() == Test[rowNumber][Object.keys(Test[rowNumber])[Object.keys(Test[rowNumber]).indexOf(key)]]){
+                valueToTextNode(rowNumber, Object.keys(Test[rowNumber]).indexOf(key), true);
+              } else if (Object.keys(Test[rowNumber]).indexOf(key) >= 0){
+                valueToTextNode(rowNumber, Object.keys(Test[rowNumber]).indexOf(key), false, Test[rowNumber][Object.keys(Test[rowNumber])[Object.keys(Test[rowNumber]).indexOf(key)]]);
+              }
+            }
           }
         }
+        number = undefined;
       }
 
       //function to make the select list match list file
@@ -359,7 +369,7 @@
 
       //Function used during correction to transform the input into a text
       function valueToTextNode(row, column, isCorrect, correction = undefined){
-        let cellEl = document.querySelectorAll("#tableContainer > form > table > tbody > tr > td")[row*4 + column];
+        let cellEl = document.querySelectorAll("#tableContainer > form > table > tbody > tr td")[row*4 + column];
         inputValue = cellEl.querySelector("input").value;
         let child = cellEl.appendChild(document.createElement("span"));
         child.appendChild(document.createTextNode(inputValue));
@@ -397,9 +407,9 @@
           let secondIterator = 0;
           outputObject["row" + (iterator).toString()] = {};
           for(data of row){
-            if(data.childNodes[0].nodeType != Node.TEXT_NODE){
+            if(data.childNodes[0].nodeType != Node.TEXT_NODE && data.childNodes[0].nodeName != "SPAN"){
               outputObject["row" + (iterator).toString()][headers[secondIterator]] = data.querySelector("input").value;
-            } else {
+            } else if (data.childNodes[0].nodeType == Node.TEXT_NODE) {
               //change the key of given verbs so they're ignored during correction
               outputObject["row" + (iterator).toString()]["_" + headers[secondIterator]] = data.innerHTML;
             }
