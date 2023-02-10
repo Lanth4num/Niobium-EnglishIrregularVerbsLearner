@@ -60,7 +60,7 @@ async function createPDF(settingObject){
   // set up the table position and size
   const tableWidth = doc.page.width * 0.85;
   const cellHeight = 35;
-  const cellWidth = tableWidth / 4;
+  const cellWidth = tableWidth / tableData[0].length;
   const tableX = (doc.page.width - tableWidth)/2;
   const tableY = tableX + yPos;
   // loop through the table data and create the cells and borders
@@ -126,11 +126,20 @@ async function getLists(){
     return filesArr;
   }catch(err){console.log(err);return err}
 };
+
+//function to get metadata of lists
+async function getListMetadata(list){
+  const file = XLSX.readFile(path.join(listsPath, list));
+  const data = XLSX.utils.sheet_to_json(file.Sheets[file.SheetNames[0]]);
+  return {"header" : Object.keys(data[0])};
+}
+
+
 //fuction to return an object from a listFile
 async function listFileToArr(fileName){
   const fileContent = XLSX.readFile(path.join(listsPath, fileName));
   const fileSheets = fileContent.Sheets;
-  const fileFirstSheet = fileSheets[fileContent.SheetNames[0]]
+  const fileFirstSheet = fileSheets[fileContent.SheetNames[0]];
   return XLSX.utils.sheet_to_json(fileFirstSheet);
 };
 
@@ -141,12 +150,15 @@ app.on('ready', ()=>{
   ipcMain.handle('checkLists', getLists);
   ipcMain.handle('createPDF', async (event, settingObject)=>{
     return createPDF(settingObject);
-  })
+  });
   ipcMain.handle('FileToArr', async (event, fileName) => {
     return listFileToArr(fileName);
   });
   ipcMain.handle('createTest', async(event, settingObject) => {
     return createTest(settingObject);
+  });
+  ipcMain.handle('getListMetadata', async(event, list) => {
+    return getListMetadata(list);
   })
   //check for the app Path and create it if not
   fs.mkdirSync(listsPath, {recursive:true});
