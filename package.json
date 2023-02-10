@@ -1,5 +1,5 @@
 {
-  "name": "Niobium - English Irregular Verbs Learner",
+  "name": "NiobiumEnglishIrregularVerbsLearner",
   "version": "1.0.0",
   "description": "First Test Verbs app",
   "main": "main.js",
@@ -17,6 +17,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "electron": "^22.0.0"
+    "electron": "^22.0.0",
+    "electron-builder": "^23.6.0"
   }
 }
