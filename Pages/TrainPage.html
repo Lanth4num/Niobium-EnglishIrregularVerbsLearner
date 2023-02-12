@@ -69,7 +69,7 @@
           </div>
           <div class="container" id="selectListContainer">
             <div class="input-field col s12" id="selectVerbList">
-              <select multiple name="Lists" onchange="changeOnly(this)"></select>
+              <select multiple name="Lists" onchange="changeOnly(this);preventNotSameListColumns(this)"></select>
             </div>
             <a id="reloadButton"class="btn-floating btn-small waves-effect waves-light" onclick="applyList()"><i class="material-icons">refresh</i></a>
           </div>
@@ -151,7 +151,33 @@
           document.getElementById("numberRange").innerHTML = number + " Verbs";
       }
 
+      //function to prevent the selection of lists without the same column name/number
+      async function preventNotSameListColumns(e){
+
+        //run only if there is a value selected
+        if(e.value == ""){
+          e.querySelectorAll("option").forEach((option)=>{option.removeAttribute("disabled")});
+          let instance = M.FormSelect.init(e, {dropdownOptions:{hover:true}});
+          return;
+        }
+        let elem = document.querySelector('.dropdown-trigger');
+        const meta = e.value !== "" ? await window.eAPI.getListMetadata(e.value) : undefined;
+
+        for(option of e.querySelectorAll("option")){
+          option.removeAttribute("disabled");
+          //check if length correspond and if each verb correspond
+          let optionMeta = await window.eAPI.getListMetadata(option.value);
+          if(meta["header"].length != optionMeta["header"].length){option.setAttribute("disabled", true);continue;}
+          for(tense in optionMeta["header"]){
+            if(optionMeta["header"][tense] != meta["header"][tense]){option.setAttribute("disabled", true)}
+          }
+        }
+        let instance = M.FormSelect.init(e, {dropdownOptions:{hover:true}});
+      }
+
+      //function to change the "Only..." thing 
       async function changeOnly(e){
+        if(e.value == ""){return}
         let listName = M.FormSelect.getInstance(e).getSelectedValues()[0];
         let meta = await window.eAPI.getListMetadata(listName);
         removeAllChild(document.querySelector("#chooseTense"));
@@ -453,6 +479,7 @@
       window.onload = async () => {
         await applyList();
         await changeOnly(document.querySelector("#selectVerbList > div > select"));
+        await preventNotSameListColumns(document.querySelector("#selectVerbList > div > select"))
       }
     </script>
   </body>
