@@ -78,6 +78,45 @@
     </div>
 
     <style>
+
+      .overlay{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2;
+      }
+
+      .popup{
+        position:fixed;
+        background-color: white;
+        width: 300px;
+        height: 300px;
+        z-index: 3;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius : 10px;
+      }
+
+      .popup-content{
+        text-align:center;
+        width: 100%;
+        height: 100%;
+      }
+
+      .popup-content > h3{
+        color: lightslategrey;
+      }
+      .popup-content > a{
+        position:absolute;
+        bottom: 25px;
+        left:50%;
+        transform: translate(-50%, 0);
+      }
+
       #tableContainer{
         width:50%;
         left:50%;
@@ -408,13 +447,30 @@
         button.removeEventListener("click", functionForCorrection );
         //change button Label
         button.removeChild(button.firstChild);
-        button.appendChild(document.createTextNode("GO BACK"));
+        button.appendChild(document.createTextNode("VIEW GRADE"));
         button.addEventListener("click", (e)=>{
-          window.location.reload();
+          gradePopup((round(grade/(grade+verbsMissed) *20)).toString());
         });
-
-        console.log((round(grade/(grade+verbsMissed) *20)).toString() + "/20");
       }
+
+      //Function to show the grade popup
+      function gradePopup(grade){
+        let newPop = document.createElement("div");
+        newPop.classList.add("popup");
+        let popContent = document.createElement("div");
+        popContent.classList.add("popup-content");
+        addElement("h3", popContent, "GRADE");
+        addElement("h1", popContent, grade.toString()+"/20");
+        let escBtn = addElement("a", popContent, "GO BACK");
+        escBtn.classList.add("waves-effect", "waves-light", "btn");
+        escBtn.addEventListener("click", (e)=>{window.location.reload()})
+        newPop.appendChild(popContent);
+        document.querySelector("body").appendChild(newPop);
+        let newOverlay = document.createElement("div");
+        newOverlay.classList.add("overlay");
+        document.querySelector("body").appendChild(newOverlay);
+      }
+
 
       //Function to round by step the grade over 20:
       function round(number, step = 0.5){
@@ -479,7 +535,7 @@
       window.onload = async () => {
         await applyList();
         await changeOnly(document.querySelector("#selectVerbList > div > select"));
-        await preventNotSameListColumns(document.querySelector("#selectVerbList > div > select"))
+        await preventNotSameListColumns(document.querySelector("#selectVerbList > div > select"));
       }
     </script>
   </body>

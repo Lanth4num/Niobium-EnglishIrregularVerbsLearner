@@ -26,6 +26,7 @@
           <p class="range-field">
             <input name="numberOfVerbs" type="range" id="test5" min="5" max="20" onchange="changeNumber(this.value)" />
           </p>
+          <div id="chooseTense">
            <p>
              <label>
                <input name="group1" type="radio" value="Infinitive"/>
@@ -56,9 +57,10 @@
                <span>Random</span>
              </label>
            </p>
+          </div>
           <div class="container" id="selectListContainer">
             <div class="input-field col s12" id="selectVerbList">
-              <select multiple name="Lists"></select>
+              <select multiple name="Lists" onchange="changeOnly(this);preventNotSameListColumns(this)"></select>
             </div>
             <a id="reloadButton"class="btn-floating btn-small waves-effect waves-light" onclick="applyList()"><i class="material-icons">refresh</i></a>
           </div>
@@ -107,6 +109,61 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
+
+      //function to prevent the selection of lists without the same column name/number
+      async function preventNotSameListColumns(e){
+
+        //run only if there is a value selected
+        if(e.value == ""){
+          e.querySelectorAll("option").forEach((option)=>{option.removeAttribute("disabled")});
+          let instance = M.FormSelect.init(e, {dropdownOptions:{hover:true}});
+          return;
+        }
+        let elem = document.querySelector('.dropdown-trigger');
+        const meta = e.value !== "" ? await window.eAPI.getListMetadata(e.value) : undefined;
+
+        for(option of e.querySelectorAll("option")){
+          option.removeAttribute("disabled");
+          //check if length correspond and if each verb correspond
+          let optionMeta = await window.eAPI.getListMetadata(option.value);
+          if(meta["header"].length != optionMeta["header"].length){option.setAttribute("disabled", true);continue;}
+          for(tense in optionMeta["header"]){
+            if(optionMeta["header"][tense] != meta["header"][tense]){option.setAttribute("disabled", true)}
+          }
+        }
+        let instance = M.FormSelect.init(e, {dropdownOptions:{hover:true}});
+      }
+
+      //function to change the "Only..." thing 
+      async function changeOnly(e){
+        if(e.value == ""){return}
+        let listName = M.FormSelect.getInstance(e).getSelectedValues()[0];
+        let meta = await window.eAPI.getListMetadata(listName);
+        removeAllChild(document.querySelector("#chooseTense"));
+
+        for(let i in meta["header"]){
+          let newRadio = addElement("p", document.getElementById("chooseTense"));
+          let newLabel = document.createElement("label");
+          newRadio.appendChild(newLabel);
+          let newInput = addElement("input", newLabel);
+          newInput.setAttribute("type", "radio");
+          newInput.setAttribute("name", "group1");
+          newInput.setAttribute("value", i);
+          //Add the span obviously
+          let newSpan = addElement("span", newLabel, "Only " + meta["header"][i]);
+        }
+        //add the Random option
+        let lastRadio = addElement("p", document.getElementById("chooseTense"));
+        let lastLabel = addElement("label", lastRadio);
+        let lastInput = addElement("input", lastLabel);
+        lastInput.setAttribute("type", "radio");
+        lastInput.setAttribute("name", "group1");
+        lastInput.setAttribute("checked", true);
+        //Value of -1 for the random value
+        lastInput.setAttribute("value", -1);
+        let lastSpan = addElement("span", lastLabel, "Random");
+      }
+
       document.querySelector('#Form').addEventListener('submit', (e)=>{
         e.preventDefault();
         let obj = {};
@@ -171,14 +228,20 @@
       //add Element function (element to add, parent node, text node)
       function addElement(element, parent, text=''){
         let newElement = document.createElement(element);
-        let newTextNode = document.createTextNode(text);
-        newElement.appendChild(newTextNode);
-        parent.appendChild(newElement);
+        if(text != ""){
+          let newTextNode = document.createTextNode(text);
+          newElement.appendChild(newTextNode);
+          parent.appendChild(newElement);
+        } else {
+          parent.appendChild(newElement);
+        }
         return newElement;
       }
 
       window.onload = async ()=>{
         await applyList();
+        await changeOnly(document.querySelector("#selectVerbList > div > select"));
+        await preventNotSameListColumns(document.querySelector("#selectVerbList > div > select"));
       }
     </script>
   </body>
