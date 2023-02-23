@@ -13,6 +13,7 @@ const listsPath = app.getPath("appData")+"\\IrVerbsApp\\Lists";
 
 //function to create PDF test from an object
 async function createPDF(settingObject){
+
   const doc = new pdfkit({size:"A4"});
   let xPos = 30;
   let yPos = 30;
@@ -32,19 +33,11 @@ async function createPDF(settingObject){
   addTextField(xPos + doc.widthOfString(Label), yPos + doc.heightOfString(Label)*0.75);
 
   //creating the array
+  const meta = await getListMetadata(settingObject["Lists"][0]);
   let testObject = await createTest(settingObject);
   let tableData = [];
   for(let i in testObject){
-    let a;
-    switch(settingObject["GivenVerbs"]){
-      case "Infinitive": a = 0 ;break;
-      case "Preterit": a = 1 ;break;
-      case "PastParticiple": a = 2 ;break;
-      case "Translation": a = 3; break;
-      case "Random": a = Math.floor(Math.random() * 4);break;
-      //setting random as default in case of an issue
-      default :  a = Math.floor(Math.random() * 4);break;
-    }
+    let a = settingObject["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["header"].length) : settingObject["GivenVerbs"];
     tableData.push([]);
     for(key of Object.keys(testObject[i])){
       tableData[i].push(key == Object.keys(testObject[i])[a] ? testObject[i][key] : "");
@@ -107,7 +100,6 @@ async function createTest(settingObject){
     if(completeArr.length != 0){
       //choose a random number to get a random verb of the arr
       let a = Math.floor(Math.random() * completeArr.length);
-      //error it does not remove the good thing maybe ?
       finalArr.push(completeArr[a]);
       completeArr.splice(a, 1);
     }

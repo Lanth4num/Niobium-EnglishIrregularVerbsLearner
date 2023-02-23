@@ -345,7 +345,7 @@
         const value = await window.eAPI.trainCreator(object);
         let finalObj = {};
         Test = value;
-        let z=0;    
+        let z=0;
         //handeling the Only ... statement
         for(verb of value){
           let a = object["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["header"].length) : object["GivenVerbs"];
