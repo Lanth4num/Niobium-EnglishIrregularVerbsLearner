@@ -123,7 +123,7 @@ async function getLists(){
     const filesArr = await fs.promises.readdir(listsPath);
     let fileArrFiltered = [];
     for(file of filesArr){
-      if(file.endsWith('.xlsx')){fileArrFiltered.push(file);}
+      if(file.endsWith('.json')){fileArrFiltered.push(file);}
     }
     return fileArrFiltered;
   }catch(err){return err}
