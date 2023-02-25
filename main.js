@@ -122,9 +122,11 @@ async function getLists(){
   try{
     const filesArr = await fs.promises.readdir(listsPath);
     let fileArrFiltered = [];
-    for(file of filesArr){if(file.endsWith('.xlsx')){fileArrFiltered.push(file);}}
-    return filesArr;
-  }catch(err){console.log(err);return err}
+    for(file of filesArr){
+      if(file.endsWith('.xlsx')){fileArrFiltered.push(file);}
+    }
+    return fileArrFiltered;
+  }catch(err){return err}
 };
 
 //function to get metadata of lists
@@ -198,4 +200,26 @@ app.on('ready', ()=>{
     protocol:'file:',
     slashes: true
   }));
+  
+  for(file of fs.readdirSync(listsPath)){
+    file.endsWith(".xlsx") ? convertXLSXtoJSON(file) : null;
+  }
 });
+
+async function convertXLSXtoJSON(fileName){
+  let object = {
+    "metadata":{
+      title:"",
+      description:"",
+      columnTitle:[]
+	  }
+  };
+  const fileContent = XLSX.readFile(path.join(listsPath, fileName));
+  const fileSheets = fileContent.Sheets;
+  const fileFirstSheet = fileSheets[fileContent.SheetNames[0]];
+  let rawList = XLSX.utils.sheet_to_json(fileFirstSheet, {header: 1});
+  object["metadata"]["title"] = fileName.replace(".xlsx", "");
+  object["metadata"]["columnTitle"] = rawList.shift();
+  object["list"] = rawList;
+  fs.writeFileSync(path.join(listsPath, fileName.replace(".xlsx", ".json")), JSON.stringify(object, null, "\t"));
+}
