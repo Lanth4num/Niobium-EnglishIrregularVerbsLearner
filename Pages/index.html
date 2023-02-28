@@ -62,8 +62,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
 
-      window.onload = async () =>{
-        await applyList();
+      window.onload = () =>{
+        applyList();
       }
 
       //function to convert array of object into HTML table
@@ -97,7 +97,8 @@
       };
 
       //check for the change event of select
-      document.querySelector('#selectVerbList select').addEventListener('change', async function(){
+      document.querySelector('#selectVerbList select').addEventListener('change', //function to make the new table
+      async function newTable(){
         const listArr = await window.eAPI.FileToArr(this.value);
         console.log(listArr);
         let result = arrOfObjectsToTable(listArr);
