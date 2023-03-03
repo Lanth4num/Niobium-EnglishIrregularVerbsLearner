@@ -138,11 +138,13 @@ async function getListMetadata(list){
 
 
 //fuction to return an object from a listFile
-async function listFileToArr(fileName){
-  const fileContent = XLSX.readFile(path.join(listsPath, fileName));
-  const fileSheets = fileContent.Sheets;
-  const fileFirstSheet = fileSheets[fileContent.SheetNames[0]];
-  return XLSX.utils.sheet_to_json(fileFirstSheet);
+function listFileToArr(fileName){
+  let fileRawData = fs.readFileSync(path.join(listsPath, fileName));
+  let listObject = JSON.parse(fileRawData);
+  let finalArr = listObject["list"];
+  finalArr.unshift(listObject["metadata"]["columnTitle"]);
+  console.log(finalArr);
+  return finalArr;
 };
 
 //Listen for app to be ready
@@ -153,11 +155,12 @@ app.on('ready', ()=>{
   ipcMain.handle('createPDF', async (event, settingObject)=>{
     return createPDF(settingObject);
   });
-  ipcMain.handle('FileToArr', async (event, fileName) => {
+  ipcMain.handle('FileToArr', (event, fileName) => {
     return listFileToArr(fileName);
   });
   ipcMain.handle('createTest', async(event, settingObject) => {
-    return createTest(settingObject);
+    const result = createTest(settingObject);
+    return result;
   });
   ipcMain.handle('getListMetadata', async(event, list) => {
     return getListMetadata(list);
