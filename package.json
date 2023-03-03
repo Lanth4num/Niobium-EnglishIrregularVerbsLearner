@@ -1,11 +1,13 @@
 {
   "name": "NiobiumEnglishIrregularVerbsLearner",
   "version": "1.0.0",
-  "description": "First Test Verbs app",
+  "description": "This is my first project, an application to learn and create tests for irregular verbs",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-packager ."
+    "forge": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "author": "Becker Adrien",
   "license": "MIT",
@@ -14,10 +16,34 @@
     "pdfkit": "^0.13.0",
     "pdfmake": "^0.2.7",
     "xlsx": "^0.18.5"
+  },"config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "electron_quick_start"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "win32"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        }
+      ]
+    }
   },
   "devDependencies": {
-    "electron": "^22.0.0",
-    "electron-packager": "^17.1.1",
-    "electron-winstaller": "^5.1.0"
+    "@electron-forge/cli": "^6.0.5",
+    "@electron-forge/maker-deb": "^6.0.5",
+    "@electron-forge/maker-squirrel": "^6.0.5",
+    "@electron-forge/maker-zip": "^6.0.5",
+    "electron": "^22.0.0"
   }
 }
