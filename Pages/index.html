@@ -67,33 +67,22 @@
       }
 
       //function to convert array of object into HTML table
-      function arrOfObjectsToTable(array){
-        let table = document.createElement('table');
-        table.setAttribute('class', 'striped');
+      function arrToHTMLTable(array){
         let tableHeader = document.createElement('thead');
         //set the header
-        for(i of Object.keys(array[0])){
-          let newHeaderElement = document.createElement('th');
-          let newTextNode = document.createTextNode(i);
-          newHeaderElement.appendChild(newTextNode);
-          tableHeader.appendChild(newHeaderElement);
+        for(Tense of array[0]){
+          addElement("th", tableHeader, Tense);
+          array.shift();
         }
 
-        //set the table tbody
-        let tbody = document.createElement('tbody');
-          //for every object
-        for(i of array){
-          let newRow = document.createElement('tr');
-            //for every element in object
-          for(y in i){
-            let newData = document.createElement('td');
-            let newTextNode = document.createTextNode(i[y]);
-            newData.appendChild(newTextNode);
-            newRow.appendChild(newData);
+        let tbody = document.createElement("tbody");
+        for(row of array){
+          let newRow = addElement("tr", tbody);
+          for(col of row){
+            addElement("td", newRow, col);
           }
-          tbody.appendChild(newRow);
         }
-        return [tableHeader, tbody];
+        return [tableHeader, tbody]
       };
 
       //check for the change event of select
@@ -101,7 +90,8 @@
       async function newTable(){
         const listArr = await window.eAPI.FileToArr(this.value);
         console.log(listArr);
-        let result = arrOfObjectsToTable(listArr);
+        let result = arrToHTMLTable(listArr);
+        console.log(result);
         const currentTable = document.querySelector('table');
         removeAllChild(currentTable);
         currentTable.appendChild(result[0]);
