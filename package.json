@@ -23,7 +23,9 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "electron_quick_start"
+            "name": "electron_quick_start",
+            "iconUrl": "https://github.com/Lanth4num/Niobium-EnglishIrregularVerbsLearner/blob/edbdff6512e1c414d898e5ec87766f908155448c/icon.ico",
+            "setupIcon": "icon.ico"
           }
         },
         {
@@ -34,7 +36,11 @@
         },
         {
           "name": "@electron-forge/maker-deb",
-          "config": {}
+          "config": {
+            "options":{
+              "icon": "icon.ico"
+            }
+          }
         }
       ]
     }
