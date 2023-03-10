@@ -143,7 +143,6 @@ function listFileToArr(fileName){
   let listObject = JSON.parse(fileRawData);
   let finalArr = listObject["list"];
   finalArr.unshift(listObject["metadata"]["columnTitle"]);
-  console.log(finalArr);
   return finalArr;
 };
 
