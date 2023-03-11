@@ -207,31 +207,31 @@
           option.removeAttribute("disabled");
           //check if length correspond and if each verb correspond
           let optionMeta = await window.eAPI.getListMetadata(option.value);
-          if(meta["header"].length != optionMeta["header"].length){option.setAttribute("disabled", true);continue;}
-          for(tense in optionMeta["header"]){
-            if(optionMeta["header"][tense] != meta["header"][tense]){option.setAttribute("disabled", true)}
+          if(meta["columnTitle"].length != optionMeta["columnTitle"].length){option.setAttribute("disabled", true);continue;}
+          for(tense in optionMeta["columnTitle"]){
+            if(optionMeta["columnTitle"][tense] != meta["columnTitle"][tense]){option.setAttribute("disabled", true)}
           }
         }
         let instance = M.FormSelect.init(e, {dropdownOptions:{hover:true}});
       }
 
-      //function to change the "Only..." thing 
+      //function to change the "Only..." thing taking e (event)
       async function changeOnly(e){
-        if(e.value == ""){return}
+        if(e.value == ""){console.log("no value detected");return}
         let listName = M.FormSelect.getInstance(e).getSelectedValues()[0];
         let meta = await window.eAPI.getListMetadata(listName);
         removeAllChild(document.querySelector("#chooseTense"));
 
-        for(let i in meta["header"]){
+        for(let tense in meta["columnTitle"]){
           let newRadio = addElement("p", document.getElementById("chooseTense"));
           let newLabel = document.createElement("label");
           newRadio.appendChild(newLabel);
           let newInput = addElement("input", newLabel);
           newInput.setAttribute("type", "radio");
           newInput.setAttribute("name", "group1");
-          newInput.setAttribute("value", i);
+          newInput.setAttribute("value", tense);
           //Add the span obviously
-          let newSpan = addElement("span", newLabel, "Only " + meta["header"][i]);
+          let newSpan = addElement("span", newLabel, "Only " + meta["columnTitle"][tense]);
         }
         //add the Random option
         let lastRadio = addElement("p", document.getElementById("chooseTense"));
@@ -309,8 +309,9 @@
         Test = value;
         let z=0;    
         //handeling the Only ... statement
+        console.log(value);
         for(verb of value){
-          let a = object["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["header"].length) : object["GivenVerbs"];
+          let a = object["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["columnTitle"].length) : object["GivenVerbs"];
           finalObj["row" + z.toString()] = {};
           Object.keys(verb).forEach(key => {
             finalObj["row"+ z.toString()][key] = "";

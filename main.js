@@ -95,11 +95,12 @@ async function createTest(settingObject){
   //taking all verbs of lists
   for(file of settingObject["Lists"]){
     let f = await listFileToArr(file);
+    f.shift();
+    console.log(f);
     for(verb of f){
       completeArr.push(verb);
     }
   }
-
   //selecting the verbs of the complete array
   //I can do that in a while loop
   for(let i=0; i<settingObject.numberOfVerbs; i++){
@@ -112,7 +113,9 @@ async function createTest(settingObject){
       completeArr.splice(a, 1);
     }
   }
-  // Fix the code so it detect when 2 verbs are the same, in diffrents files
+  //add the header
+  finalArr.unshift(getListMetadata(settingObject["Lists"][0])["columnTitle"]);
+  // Fix the code so it detect when 2 verbs are the same, in different files
   return finalArr;
 }
 
@@ -131,9 +134,9 @@ async function getLists(){
 
 //function to get metadata of lists
 async function getListMetadata(list){
-  const file = XLSX.readFile(path.join(listsPath, list));
-  const data = XLSX.utils.sheet_to_json(file.Sheets[file.SheetNames[0]]);
-  return {"header" : Object.keys(data[0])};
+  const file = fs.readFileSync(path.join(listsPath, list));
+  const data = JSON.parse(file);
+  return data["metadata"];
 }
 
 
