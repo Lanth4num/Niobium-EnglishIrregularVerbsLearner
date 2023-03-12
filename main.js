@@ -96,7 +96,6 @@ async function createTest(settingObject){
   for(file of settingObject["Lists"]){
     let f = await listFileToArr(file);
     f.shift();
-    console.log(f);
     for(verb of f){
       completeArr.push(verb);
     }
@@ -114,7 +113,8 @@ async function createTest(settingObject){
     }
   }
   //add the header
-  finalArr.unshift(getListMetadata(settingObject["Lists"][0])["columnTitle"]);
+  const tenses = await getListMetadata(settingObject["Lists"][0]);
+  finalArr.unshift(tenses["columnTitle"]);
   // Fix the code so it detect when 2 verbs are the same, in different files
   return finalArr;
 }

@@ -303,42 +303,50 @@
 
 
       async function createTest(object){
-        const meta = await window.eAPI.getListMetadata(object["Lists"][0]);
         const value = await window.eAPI.trainCreator(object);
-        let finalObj = {};
-        Test = value;
-        let z=0;    
-        //handeling the Only ... statement
         console.log(value);
-        for(verb of value){
-          let a = object["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["columnTitle"].length) : object["GivenVerbs"];
-          finalObj["row" + z.toString()] = {};
-          Object.keys(verb).forEach(key => {
-            finalObj["row"+ z.toString()][key] = "";
-          });
-          //loop through verb time
-          for(i of Object.keys(verb)){
-            if( verb[i] == verb[Object.keys(finalObj["row" + z.toString()])[a]]){
-              finalObj["row" + z.toString()][Object.keys(finalObj["row" + z.toString()])[a]] = verb[i];
-            }
-          }
-          z++;
+        let finalArr = [];
+        Test = value;
+        
+        for(row of value){
+          //handeling column title = first row = tenses
+          if(row == value[0]){finalArr.push(row);continue}
         }
-        let table = objectToTable(finalObj, object.autocorrect);
-        El = document.querySelector("#tableContainer");
-        tableEl = El.appendChild(document.createElement("form")).appendChild(document.createElement("table"));
-        tableEl.setAttribute('class', 'striped centered');
-        tableEl.appendChild(table[0]);
-        tableEl.appendChild(table[1]);
-        //add the correct button
-        button = document.createElement("a");
-        button.appendChild(document.createTextNode("Check"));
-        button.setAttribute("class", "waves-effect waves-light btn-small");
-        button.setAttribute("style", "left:50%;transform : translate(-50%, 0); top:20px; ")
-        El.appendChild(button);
-        //listen for the verify button
-        button.addEventListener("click", functionForCorrection);
+
+
+        // //loop through the verbs
+        // for(verb of value){
+        //   //handeling the Only ... statement
+        //   let a = object["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["columnTitle"].length) : object["GivenVerbs"];
+        //   finalObj["row" + z.toString()] = {};
+        //   Object.keys(verb).forEach(key => {
+        //     finalObj["row"+ z.toString()][key] = "";
+        //   });
+        //   //loop through verb time
+        //   for(i of Object.keys(verb)){
+        //     if( verb[i] == verb[Object.keys(finalObj["row" + z.toString()])[a]]){
+        //       finalObj["row" + z.toString()][Object.keys(finalObj["row" + z.toString()])[a]] = verb[i];
+        //     }
+        //   }
+        //   z++;
+        // }
+        // console.log(finalObj)
+        // let table = objectToTable(finalObj, object.autocorrect);
+        // El = document.querySelector("#tableContainer");
+        // tableEl = El.appendChild(document.createElement("form")).appendChild(document.createElement("table"));
+        // tableEl.setAttribute('class', 'striped centered');
+        // tableEl.appendChild(table[0]);
+        // tableEl.appendChild(table[1]);
+        // //add the correct button
+        // button = document.createElement("a");
+        // button.appendChild(document.createTextNode("Check"));
+        // button.setAttribute("class", "waves-effect waves-light btn-small");
+        // button.setAttribute("style", "left:50%;transform : translate(-50%, 0); top:20px; ")
+        // El.appendChild(button);
+        // //listen for the verify button
+        // button.addEventListener("click", functionForCorrection);
       }
+
       //Convert the object of createTest into a table
       function objectToTable(object, autocorrect){
         let tableHeader = document.createElement('thead');
