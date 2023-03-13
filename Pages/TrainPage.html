@@ -304,15 +304,20 @@
 
       async function createTest(object){
         const value = await window.eAPI.trainCreator(object);
-        console.log(value);
-        let finalArr = [];
         Test = value;
-        
-        for(row of value){
-          //handeling column title = first row = tenses
-          if(row == value[0]){finalArr.push(row);continue}
-        }
 
+        //making the new array with gaps
+        finalArr = value.map( (el, elIndex) =>{
+          //handeling the Tenses -> first row of the array
+          if(elIndex == 0){return el}
+          //set a as the chosen tense or random
+          let a = object["GivenVerbs"] == -1 ? Math.floor(Math.random() * value[0].length) : object["GivenVerbs"];
+          return el.map((secondEl, secondElIndex )=> {
+              //if the tense correspond return the element, if not return empty string
+              return secondElIndex == a ? secondEl : "";
+          })
+        });
+        console.log(finalArr);
 
         // //loop through the verbs
         // for(verb of value){
