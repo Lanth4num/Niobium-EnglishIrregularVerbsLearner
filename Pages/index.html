@@ -69,26 +69,6 @@
         applyList();
       }
 
-      //function to convert array of object into HTML table
-      function arrToHTMLTable(array){
-        let workingArray = array.map(x => x)
-
-        let tableHeader = document.createElement('thead');
-        // set the header
-        for(Tense of workingArray[0]){
-          addElement("th", tableHeader, Tense);
-        }
-        workingArray.shift();
-        let tbody = document.createElement("tbody");
-        for(row of workingArray){
-          let newRow = addElement("tr", tbody);
-          for(col of row){
-            addElement("td", newRow, col);
-          }
-        }
-        return[tableHeader, tbody];
-      };
-
       //check for the change event of select
       document.querySelector('#selectVerbList select').addEventListener('change', //function to make the new table
       function newTable(){

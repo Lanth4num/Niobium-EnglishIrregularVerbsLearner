@@ -303,11 +303,12 @@
 
 
       async function createTest(object){
+  
         const value = await window.eAPI.trainCreator(object);
         Test = value;
 
         //making the new array with gaps
-        finalArr = value.map( (el, elIndex) =>{
+        let finalArr = value.map( (el, elIndex) =>{
           //handeling the Tenses -> first row of the array
           if(elIndex == 0){return el}
           //set a as the chosen tense or random
@@ -317,81 +318,23 @@
               return secondElIndex == a ? secondEl : "";
           })
         });
-        console.log(finalArr);
 
-        // //loop through the verbs
-        // for(verb of value){
-        //   //handeling the Only ... statement
-        //   let a = object["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["columnTitle"].length) : object["GivenVerbs"];
-        //   finalObj["row" + z.toString()] = {};
-        //   Object.keys(verb).forEach(key => {
-        //     finalObj["row"+ z.toString()][key] = "";
-        //   });
-        //   //loop through verb time
-        //   for(i of Object.keys(verb)){
-        //     if( verb[i] == verb[Object.keys(finalObj["row" + z.toString()])[a]]){
-        //       finalObj["row" + z.toString()][Object.keys(finalObj["row" + z.toString()])[a]] = verb[i];
-        //     }
-        //   }
-        //   z++;
-        // }
-        // console.log(finalObj)
-        // let table = objectToTable(finalObj, object.autocorrect);
-        // El = document.querySelector("#tableContainer");
-        // tableEl = El.appendChild(document.createElement("form")).appendChild(document.createElement("table"));
-        // tableEl.setAttribute('class', 'striped centered');
-        // tableEl.appendChild(table[0]);
-        // tableEl.appendChild(table[1]);
-        // //add the correct button
-        // button = document.createElement("a");
-        // button.appendChild(document.createTextNode("Check"));
-        // button.setAttribute("class", "waves-effect waves-light btn-small");
-        // button.setAttribute("style", "left:50%;transform : translate(-50%, 0); top:20px; ")
-        // El.appendChild(button);
-        // //listen for the verify button
-        // button.addEventListener("click", functionForCorrection);
+        let table = arrToHTMLTable(finalArr, true, object.autocorrect);
+
+        El = document.querySelector("#tableContainer");
+        tableEl = El.appendChild(document.createElement("form")).appendChild(document.createElement("table"));
+        tableEl.setAttribute('class', 'striped centered');
+        tableEl.appendChild(table[0]);
+        tableEl.appendChild(table[1]);
+        //add the correct button
+        button = document.createElement("a");
+        button.appendChild(document.createTextNode("Check"));
+        button.setAttribute("class", "waves-effect waves-light btn-small");
+        button.setAttribute("style", "left:50%;transform : translate(-50%, 0); top:20px; ")
+        El.appendChild(button);
+        //listen for the verify button
+        button.addEventListener("click", functionForCorrection);
       }
-
-      //Convert the object of createTest into a table
-      function objectToTable(object, autocorrect){
-        let tableHeader = document.createElement('thead');
-        //set the header
-        for(i of Object.keys(object["row0"])){
-          let newHeaderElement = document.createElement('th');
-          let newTextNode = document.createTextNode(i);
-          newHeaderElement.appendChild(newTextNode);
-          tableHeader.appendChild(newHeaderElement);
-        }
-
-        //set the table tbody
-        let tbody = document.createElement('tbody');
-          //for every object
-        for(key of Object.keys(object)){
-          let newRow = document.createElement('tr');
-            //for every element in object
-          for(tense in object[key]){
-            let newData = document.createElement('td');
-            let verb = object[key][tense];
-            if(verb !== ""){
-              let newTextNode = document.createTextNode(verb);
-              newData.appendChild(newTextNode);
-            } else {
-              let newDivContainer = document.createElement('div');
-              newDivContainer.setAttribute('class', 'input-field');
-              let newTextInput = document.createElement('input');
-              newTextInput.setAttribute("type", "text");
-              newTextInput.setAttribute("style", "max-height : 60px; color: lightskyblue;");
-              newTextInput.setAttribute("onblur", autocorrect ? "lineCorrection(this)" : undefined);
-              newDivContainer.appendChild(newTextInput);
-              newData.appendChild(newDivContainer);
-            }
-            newData.setAttribute("style", "height:72px;")
-            newRow.appendChild(newData);
-          }
-          tbody.appendChild(newRow);
-        }
-        return [tableHeader, tbody];
-      };
       
       //Function to verfify
       function correct(button){

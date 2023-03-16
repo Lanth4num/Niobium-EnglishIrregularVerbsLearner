@@ -38,3 +38,35 @@ async function applyList(){
 	let dropdownInstance = M.Dropdown.getInstance(elem);
 	dropdownInstance.recalculateDimensions();
   }
+
+  //function to convert array of object into HTML table
+  function arrToHTMLTable(array, emptyStringToTextInput = false, autocorrect = false){
+	let workingArray = array.map(x => x)
+
+	let tableHeader = document.createElement('thead');
+	// set the header
+	for(Tense of workingArray[0]){
+	  addElement("th", tableHeader, Tense);
+	}
+	workingArray.shift();
+	let tbody = document.createElement("tbody");
+	for(row of workingArray){
+	  let newRow = addElement("tr", tbody);
+	  for(col of row){
+		if(emptyStringToTextInput && col==""){
+			let newData = addElement("td", newRow);
+			let newDivContainer = document.createElement('div');
+			newDivContainer.setAttribute('class', 'input-field');
+			let newTextInput = document.createElement('input');
+			newTextInput.setAttribute("type", "text");
+			newTextInput.setAttribute("style", "max-height : 60px; color: lightskyblue;");
+			newTextInput.setAttribute("onblur", autocorrect ? "lineCorrection(this)" : undefined);
+			newDivContainer.appendChild(newTextInput);
+			newData.appendChild(newDivContainer);
+		} else {
+			addElement("td", newRow, col);
+		}
+	  }
+	}
+	return[tableHeader, tbody];
+  };
