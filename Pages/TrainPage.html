@@ -339,6 +339,7 @@
       //Function to verfify
       function correct(button){
         let obj = tableToObject();
+        // let obj = tableToArr()
         let grade = 0;
         let verbsMissed = 0;
         let i=0;
@@ -418,37 +419,54 @@
       function tableToObject(){
         let headers = [];
         let table = [];
-        outputObject = {};
-        //get the keys => all the header
-        document.querySelectorAll("table>thead th").forEach((THelem)=>{
-          headers.push(THelem.innerHTML);
-        });
-        //create a table wich represent the HTML table
-        let iterator = 0;
+        let outputObject = {};
+
         document.querySelector("table>tbody").childNodes.forEach((tableRow)=>{
-          table.push([]);
+          let index = table.push([]) -1 ;
           tableRow.childNodes.forEach((tableData)=>{
-            table[iterator].push(tableData);
-          });
-          iterator++;
-        });
-        iterator = 0;
-        //create the Object with the table
-        for(row of table){
-          let secondIterator = 0;
-          outputObject["row" + (iterator).toString()] = {};
-          for(data of row){
-            if(data.childNodes[0].nodeType != Node.TEXT_NODE && data.childNodes[0].nodeName != "SPAN"){
-              outputObject["row" + (iterator).toString()][headers[secondIterator]] = data.querySelector("input").value;
-            } else if (data.childNodes[0].nodeType == Node.TEXT_NODE) {
-              //change the key of given verbs so they're ignored during correction
-              outputObject["row" + (iterator).toString()]["_" + headers[secondIterator]] = data.innerHTML;
+            secondIndex = table[index].push(tableData) - 1;
+            if(tableData.childNodes[0].nodeType != Node.TEXT_NODE && tableData.childNodes[0].nodeName != "SPAN"){
+              table[index][secondIndex] = tableData.querySelector("input").value;
+            } else if (tableData.childNodes[0].nodeType == Node.TEXT_NODE){
+              table[index][secondIndex] = {"given" : tableData.innerHTML};
             }
-            secondIterator++;
-          }
-          iterator++;
-        }
-        return outputObject;
+          });
+        });
+
+        // //create a table wich represent the HTML table
+        // let iterator = 0;
+        // document.querySelector("table>tbody").childNodes.forEach((tableRow)=>{
+        //   table.push([]);
+        //   tableRow.childNodes.forEach((tableData)=>{
+        //     table[iterator].push(tableData);
+        //   });
+        //   iterator++;
+        // });
+        // iterator = 0;
+        // //create the Object with the table
+        // for(row of table){
+        //   let secondIterator = 0;
+        //   outputObject["row" + (iterator).toString()] = {};
+        //   for(data of row){
+        //     if(data.childNodes[0].nodeType != Node.TEXT_NODE && data.childNodes[0].nodeName != "SPAN"){
+        //       outputObject["row" + (iterator).toString()][headers[secondIterator]] = data.querySelector("input").value;
+        //     } else if (data.childNodes[0].nodeType == Node.TEXT_NODE) {
+        //       //change the key of given verbs so they're ignored during correction
+        //       outputObject["row" + (iterator).toString()]["_" + headers[secondIterator]] = data.innerHTML;
+        //     }
+        //     secondIterator++;
+        //   }
+        //   iterator++;
+        // }
+
+        //adding Tenses at the begining of the array
+        table.unshift([])
+        document.querySelectorAll("table>thead th").forEach((th)=>{
+          table[0].push(th.innerHTML);
+        })
+
+        console.log(table);
+        return table;
       }
 
       window.onload = async () => {
