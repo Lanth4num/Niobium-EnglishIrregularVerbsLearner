@@ -126,6 +126,7 @@
       }
       td{
         padding: 0 5px;
+        height: 76px;
       }
       th{
         text-align: center;
@@ -258,7 +259,7 @@
           if(number == rowElement.querySelectorAll("td input").length){
             //define the row index (rowNumber)
             rowNumber = Array.from(rowElement.parentNode.childNodes).indexOf(rowElement);
-            let rowValueArray = tableToObject()["row" + rowNumber];
+            let rowValueArray = tableToArr()["row" + rowNumber];
             for(key of Object.keys(rowValueArray)){
               if(rowValueArray[key].trim() == Test[rowNumber][Object.keys(Test[rowNumber])[Object.keys(Test[rowNumber]).indexOf(key)]]){
                 valueToTextNode(rowNumber, Object.keys(Test[rowNumber]).indexOf(key), true);
@@ -338,30 +339,30 @@
       
       //Function to verfify
       function correct(button){
-        let obj = tableToObject();
-        // let obj = tableToArr()
+        let arr = tableToArr();
         let grade = 0;
         let verbsMissed = 0;
-        let i=0;
-        for(rowKey of Object.keys(obj)){
-          let tenseKeyNumber = 0;
-          for(tenseKey of Object.keys(obj[rowKey])){
-            if((obj[rowKey][tenseKey]).trim() == Test[i][tenseKey]){
+        
+        console.log(Test);
+
+        for(row = 1; row < arr.length; row++){
+          for(column = 0; column < arr[row].length; column++){
+            if(Object.keys(arr[row][column]).includes("given")){
+              continue;
+            }
+            else if ((arr[row][column]).trim() == Test[row][column]){
               //if the verb is correct
               grade++;
-              valueToTextNode(i, tenseKeyNumber, true);
-            } else if(Test[i][tenseKey] !== undefined){              
-              //this != condition is to prevent the given verb to be corrected
-              // if the verb is incorrect
+              valueToTextNode(row, column, true);
+            } else {     
               verbsMissed++;
-              valueToTextNode(i, tenseKeyNumber, false, Test[i][tenseKey])
+              valueToTextNode(row, column, false, Test[row][column])
             }
-            tenseKeyNumber++;
+            
           }
-          tenseKeyNumber=undefined;
-          i++
+          
         }
-        i=undefined;
+        
 
         //remove button's eventListener
         button.removeEventListener("click", functionForCorrection );
@@ -401,7 +402,9 @@
       //Function used during correction to transform the input into a text
       function valueToTextNode(row, column, isCorrect, correction = undefined){
         //row* ... pour que cela corresponde au nombre de colonnes
-        let cellEl = document.querySelectorAll("#tableContainer > form > table > tbody > tr td")[row*document.querySelector("#tableContainer > form > table > tbody > tr").querySelectorAll("td").length+ column];
+        let cells = document.querySelectorAll("#tableContainer > form > table > tbody > tr td");
+        let cellEl = cells[(row-1)*(document.querySelector("#tableContainer > form > table > tbody > tr").querySelectorAll("td").length) + column ];
+
         inputValue = cellEl.querySelector("input").value;
         let child = cellEl.appendChild(document.createElement("span"));
         child.appendChild(document.createTextNode(inputValue));
@@ -416,10 +419,9 @@
       }
 
       //Function to transform select values and put in into an object
-      function tableToObject(){
+      function tableToArr(){
         let headers = [];
         let table = [];
-        let outputObject = {};
 
         document.querySelector("table>tbody").childNodes.forEach((tableRow)=>{
           let index = table.push([]) -1 ;
@@ -433,38 +435,11 @@
           });
         });
 
-        // //create a table wich represent the HTML table
-        // let iterator = 0;
-        // document.querySelector("table>tbody").childNodes.forEach((tableRow)=>{
-        //   table.push([]);
-        //   tableRow.childNodes.forEach((tableData)=>{
-        //     table[iterator].push(tableData);
-        //   });
-        //   iterator++;
-        // });
-        // iterator = 0;
-        // //create the Object with the table
-        // for(row of table){
-        //   let secondIterator = 0;
-        //   outputObject["row" + (iterator).toString()] = {};
-        //   for(data of row){
-        //     if(data.childNodes[0].nodeType != Node.TEXT_NODE && data.childNodes[0].nodeName != "SPAN"){
-        //       outputObject["row" + (iterator).toString()][headers[secondIterator]] = data.querySelector("input").value;
-        //     } else if (data.childNodes[0].nodeType == Node.TEXT_NODE) {
-        //       //change the key of given verbs so they're ignored during correction
-        //       outputObject["row" + (iterator).toString()]["_" + headers[secondIterator]] = data.innerHTML;
-        //     }
-        //     secondIterator++;
-        //   }
-        //   iterator++;
-        // }
-
         //adding Tenses at the begining of the array
         table.unshift([])
         document.querySelectorAll("table>thead th").forEach((th)=>{
           table[0].push(th.innerHTML);
         })
-
         console.log(table);
         return table;
       }
