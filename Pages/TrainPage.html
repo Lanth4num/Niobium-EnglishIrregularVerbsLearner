@@ -216,7 +216,7 @@
         let instance = M.FormSelect.init(e, {dropdownOptions:{hover:true}});
       }
 
-      //function to change the "Only..." thing taking e (event)
+      //function to change the "Only..." thing taking e (event) which is actually pretty useless
       async function changeOnly(e){
         if(e.value == ""){console.log("no value detected");return}
         let listName = M.FormSelect.getInstance(e).getSelectedValues()[0];
@@ -249,22 +249,29 @@
       function lineCorrection(e){
         let rowElement = e;
         let rowNumber;
-        let number =0;
+        let number = 0;
         
         if(e.value != ""){
+          //search for the TR element in the Table
           while(rowElement.tagName != "TR"){
             rowElement = rowElement.parentNode;
-          }          
+          }
+
           rowElement.querySelectorAll("td input").forEach((inputField)=>{number += inputField.value == "" ? 0 : 1});
+          //check if all the line is completed
           if(number == rowElement.querySelectorAll("td input").length){
             //define the row index (rowNumber)
-            rowNumber = Array.from(rowElement.parentNode.childNodes).indexOf(rowElement);
-            let rowValueArray = tableToArr()["row" + rowNumber];
-            for(key of Object.keys(rowValueArray)){
-              if(rowValueArray[key].trim() == Test[rowNumber][Object.keys(Test[rowNumber])[Object.keys(Test[rowNumber]).indexOf(key)]]){
-                valueToTextNode(rowNumber, Object.keys(Test[rowNumber]).indexOf(key), true);
-              } else if (Object.keys(Test[rowNumber]).indexOf(key) >= 0){
-                valueToTextNode(rowNumber, Object.keys(Test[rowNumber]).indexOf(key), false, Test[rowNumber][Object.keys(Test[rowNumber])[Object.keys(Test[rowNumber]).indexOf(key)]]);
+            rowNumber = Array.from(rowElement.parentNode.childNodes).indexOf(rowElement) + 1;
+            let rowValueArray = tableToArr()[rowNumber];
+            
+            for(column = 0; column < rowValueArray.length; column++){
+              if(Object.keys(rowValueArray[column]).includes("given")){
+                continue;
+              }
+              else if(rowValueArray[column].trim() == Test[rowNumber][column]){
+                valueToTextNode(rowNumber, column, true);
+              } else {
+                valueToTextNode(rowNumber, column , false, Test[rowNumber][column]);
               }
             }
           }
@@ -342,8 +349,6 @@
         let arr = tableToArr();
         let grade = 0;
         let verbsMissed = 0;
-        
-        console.log(Test);
 
         for(row = 1; row < arr.length; row++){
           for(column = 0; column < arr[row].length; column++){
@@ -440,7 +445,6 @@
         document.querySelectorAll("table>thead th").forEach((th)=>{
           table[0].push(th.innerHTML);
         })
-        console.log(table);
         return table;
       }
 
