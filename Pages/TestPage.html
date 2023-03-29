@@ -1,211 +1,221 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Test</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  </head>
-  <body>
-    <header>
-      <nav class="nav-extended">
-        <div class="nav-content">
-          <ul class="tabs tabs-transparent">
-            <li class="tab"><a href="index.html">Verbs List</a></li>
-            <li class="tab"><a href="TrainPage.html">Train</a></li>
-            <li class="tab"><a class="active">Test</a></li>
-          </ul>
-        </div>
-      </nav>
-    </header>
-    <div class="container z-depth-5" id="FormBox">
-      <form id="Form">
-        <div class="container" id="numberRange">
-          13 Verbs
-        </div>
-          <p class="range-field">
-            <input name="numberOfVerbs" type="range" id="test5" min="5" max="20" onchange="changeNumber(this.value)" />
-          </p>
-          <div id="chooseTense">
-           <p>
-             <label>
-               <input name="group1" type="radio" value="Infinitive"/>
-               <span>Only Infinitive</span>
-             </label>
-           </p>
-           <p>
-             <label>
-               <input name="group1" type="radio" value="Preterit"/>
-               <span>Only Preterit</span>
-             </label>
-           </p>
-           <p>
-             <label>
-               <input name="group1" type="radio" value="PastParticiple"/>
-               <span>Only Past participle</span>
-             </label>
-           </p>
-           <p>
-             <label>
-               <input name="group1" type="radio" value="Translation"/>
-               <span>Only Translation</span>
-             </label>
-           </p>
-           <p>
-             <label>
-               <input name="group1" type="radio" checked  value="Random"/>
-               <span>Random</span>
-             </label>
-           </p>
-          </div>
-          <div class="container" id="selectListContainer">
-            <div class="input-field col s12" id="selectVerbList">
-              <select multiple name="Lists" onchange="changeOnly(this);preventNotSameListColumns(this)"></select>
-            </div>
-            <a id="reloadButton"class="btn-floating btn-small waves-effect waves-light" onclick="applyList()"><i class="material-icons">refresh</i></a>
-          </div>
-          <button class="btn waves-effect waves-light" id="createButton" type="submit" form="Form">Create</button>
-      </form>
-    </div>
-    <style>
-      #selectListContainer{
-        position:fixed;
-        width: 30%;
-        right: 10%;
-        top:25%;
-      }
-      #reloadButton{
-        position: absolute;
-        width: 16.6666666666;
-        bottom: 50%;
-        right: 0;
-        transform: translate(0,50%);
-        display: inline-block;
-      }
-      #numberRange{
-        position: relative;
-        top: 10px;
-        text-align: center;
-      }
-      #radioDificulty{
-        position: relative;
-        left: 10%;
-      }
-      #createButton{
-        position: relative;
-        left: 50%;
-        bottom: 10px;
-        transform: translate(-50%, 0);
-      }
-      #selectVerbList{
-        width: 83.33333333%;
-      }
-      #FormBox{
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
-    </style>
-    <script src="index.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script>
 
-      //function to prevent the selection of lists without the same column name/number
-      async function preventNotSameListColumns(e){
+<head>
+  <meta charset="utf-8">
+  <title>Test</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
 
-        //run only if there is a value selected
-        if(e.value == ""){
-          e.querySelectorAll("option").forEach((option)=>{option.removeAttribute("disabled")});
-          let instance = M.FormSelect.init(e, {dropdownOptions:{hover:true}});
-          return;
+<body>
+  <header>
+    <nav class="nav-extended">
+      <div class="nav-content">
+        <ul class="tabs tabs-transparent">
+          <li class="tab"><a href="index.html">Verbs List</a></li>
+          <li class="tab"><a href="TrainPage.html">Train</a></li>
+          <li class="tab"><a class="active">Test</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <div class="container z-depth-5" id="FormBox">
+    <form id="Form">
+      <div class="container" id="numberRange">
+        13 Verbs
+      </div>
+      <p class="range-field">
+        <input name="numberOfVerbs" type="range" id="test5" min="5" max="20" onchange="changeNumber(this.value)" />
+      </p>
+      <div id="chooseTense">
+        <p>
+          <label>
+            <input name="group1" type="radio" value="Infinitive" />
+            <span>Only Infinitive</span>
+          </label>
+        </p>
+        <p>
+          <label>
+            <input name="group1" type="radio" value="Preterit" />
+            <span>Only Preterit</span>
+          </label>
+        </p>
+        <p>
+          <label>
+            <input name="group1" type="radio" value="PastParticiple" />
+            <span>Only Past participle</span>
+          </label>
+        </p>
+        <p>
+          <label>
+            <input name="group1" type="radio" value="Translation" />
+            <span>Only Translation</span>
+          </label>
+        </p>
+        <p>
+          <label>
+            <input name="group1" type="radio" checked value="Random" />
+            <span>Random</span>
+          </label>
+        </p>
+      </div>
+      <div class="container" id="selectListContainer">
+        <div class="input-field col s12" id="selectVerbList">
+          <select multiple name="Lists" onchange="changeOnly(this);preventNotSameListColumns(this)"></select>
+        </div>
+        <a id="reloadButton" class="btn-floating btn-small waves-effect waves-light" onclick="applyList()"><i
+            class="material-icons">refresh</i></a>
+      </div>
+      <button class="btn waves-effect waves-light" id="createButton" type="submit" form="Form">Create</button>
+    </form>
+  </div>
+  <style>
+    #selectListContainer {
+      position: fixed;
+      width: 30%;
+      right: 10%;
+      top: 25%;
+    }
+
+    #reloadButton {
+      position: absolute;
+      width: 16.6666666666;
+      bottom: 50%;
+      right: 0;
+      transform: translate(0, 50%);
+      display: inline-block;
+    }
+
+    #numberRange {
+      position: relative;
+      top: 10px;
+      text-align: center;
+    }
+
+    #radioDificulty {
+      position: relative;
+      left: 10%;
+    }
+
+    #createButton {
+      position: relative;
+      left: 50%;
+      bottom: 10px;
+      transform: translate(-50%, 0);
+    }
+
+    #selectVerbList {
+      width: 83.33333333%;
+    }
+
+    #FormBox {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+  <script src="index.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+
+    //function to prevent the selection of lists without the same column name/number
+    async function preventNotSameListColumns(e) {
+
+      //run only if there is a value selected
+      if (e.value == "") {
+        e.querySelectorAll("option").forEach((option) => { option.removeAttribute("disabled") });
+        let instance = M.FormSelect.init(e, { dropdownOptions: { hover: true } });
+        return;
+      }
+      let elem = document.querySelector('.dropdown-trigger');
+      const meta = e.value !== "" ? await window.eAPI.getListMetadata(e.value) : undefined;
+
+      for (option of e.querySelectorAll("option")) {
+        option.removeAttribute("disabled");
+        //check if length correspond and if each verb correspond
+        let optionMeta = await window.eAPI.getListMetadata(option.value);
+        if (meta["columnTitle"].length != optionMeta["columnTitle"].length) { option.setAttribute("disabled", true); continue; }
+        for (tense in optionMeta["columnTitle"]) {
+          if (optionMeta["columnTitle"][tense] != meta["columnTitle"][tense]) { option.setAttribute("disabled", true) }
         }
-        let elem = document.querySelector('.dropdown-trigger');
-        const meta = e.value !== "" ? await window.eAPI.getListMetadata(e.value) : undefined;
+      }
+      let instance = M.FormSelect.init(e, { dropdownOptions: { hover: true } });
+    }
 
-        for(option of e.querySelectorAll("option")){
-          option.removeAttribute("disabled");
-          //check if length correspond and if each verb correspond
-          let optionMeta = await window.eAPI.getListMetadata(option.value);
-          if(meta["header"].length != optionMeta["header"].length){option.setAttribute("disabled", true);continue;}
-          for(tense in optionMeta["header"]){
-            if(optionMeta["header"][tense] != meta["header"][tense]){option.setAttribute("disabled", true)}
+    //function to change the "Only..." thing taking e (event) which is actually pretty useless
+    async function changeOnly(e) {
+      if (e.value == "") { console.log("no value detected"); return }
+      let listName = M.FormSelect.getInstance(e).getSelectedValues()[0];
+      let meta = await window.eAPI.getListMetadata(listName);
+      removeAllChild(document.querySelector("#chooseTense"));
+
+      for (let tense in meta["columnTitle"]) {
+        let newRadio = addElement("p", document.getElementById("chooseTense"));
+        let newLabel = document.createElement("label");
+        newRadio.appendChild(newLabel);
+        let newInput = addElement("input", newLabel);
+        newInput.setAttribute("type", "radio");
+        newInput.setAttribute("name", "group1");
+        newInput.setAttribute("value", tense);
+        //Add the span obviously
+        let newSpan = addElement("span", newLabel, "Only " + meta["columnTitle"][tense]);
+      }
+      //add the Random option
+      let lastRadio = addElement("p", document.getElementById("chooseTense"));
+      let lastLabel = addElement("label", lastRadio);
+      let lastInput = addElement("input", lastLabel);
+      lastInput.setAttribute("type", "radio");
+      lastInput.setAttribute("name", "group1");
+      lastInput.setAttribute("checked", true);
+      //Value of -1 for the random value
+      lastInput.setAttribute("value", -1);
+      let lastSpan = addElement("span", lastLabel, "Random");
+    }
+
+    document.querySelector('#Form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      let obj = {};
+      for (element of e.target.elements) {
+        if (element.name != "") {
+          switch (element.getAttribute("type")) {
+            case "checkbox":
+              obj[element.value] = element.checked;
+              break;
+            case "radio":
+              if (element.checked) {
+                obj["GivenVerbs"] = element.value;
+              }
+              break;
+            case "range":
+              obj[element.name] = parseInt(element.value);
+              break;
+            default:
+              obj["Lists"] = M.FormSelect.getInstance(element).getSelectedValues();
           }
         }
-        let instance = M.FormSelect.init(e, {dropdownOptions:{hover:true}});
       }
+      createTestPDF(obj);
+      e.target.hidden = true;
+    });
 
-      //function to change the "Only..." thing 
-      async function changeOnly(e){
-        if(e.value == ""){return}
-        let listName = M.FormSelect.getInstance(e).getSelectedValues()[0];
-        let meta = await window.eAPI.getListMetadata(listName);
-        removeAllChild(document.querySelector("#chooseTense"));
-
-        for(let i in meta["header"]){
-          let newRadio = addElement("p", document.getElementById("chooseTense"));
-          let newLabel = document.createElement("label");
-          newRadio.appendChild(newLabel);
-          let newInput = addElement("input", newLabel);
-          newInput.setAttribute("type", "radio");
-          newInput.setAttribute("name", "group1");
-          newInput.setAttribute("value", i);
-          //Add the span obviously
-          let newSpan = addElement("span", newLabel, "Only " + meta["header"][i]);
-        }
-        //add the Random option
-        let lastRadio = addElement("p", document.getElementById("chooseTense"));
-        let lastLabel = addElement("label", lastRadio);
-        let lastInput = addElement("input", lastLabel);
-        lastInput.setAttribute("type", "radio");
-        lastInput.setAttribute("name", "group1");
-        lastInput.setAttribute("checked", true);
-        //Value of -1 for the random value
-        lastInput.setAttribute("value", -1);
-        let lastSpan = addElement("span", lastLabel, "Random");
-      }
-
-      document.querySelector('#Form').addEventListener('submit', (e)=>{
-        e.preventDefault();
-        let obj = {};
-        for( element of e.target.elements){
-          if(element.name != ""){
-            switch(element.getAttribute("type")){
-              case "checkbox" : 
-                obj[element.value] = element.checked;
-                break;
-              case "radio" : 
-                if(element.checked){
-                  obj["GivenVerbs"] = element.value;
-                }
-                break;
-              case "range" :
-                obj[element.name] = parseInt(element.value);
-                break;
-              default : 
-                obj["Lists"] = M.FormSelect.getInstance(element).getSelectedValues();
-            }
-          }
-        }
-        createTestPDF(obj);
-        e.target.hidden = true;
-      });
-
-      async function createTestPDF(object){
-        const value = await window.eAPI.PDFCreator(object)
-        window.location.reload();
-      }
+    async function createTestPDF(object) {
+      const value = await window.eAPI.PDFCreator(object)
+      window.location.reload();
+    }
 
 
-      function changeNumber(number){
-          document.getElementById("numberRange").innerHTML = number + " Verbs";
-      }
-      
-      window.onload = async ()=>{
-        await applyList();
-        await changeOnly(document.querySelector("#selectVerbList > div > select"));
-        await preventNotSameListColumns(document.querySelector("#selectVerbList > div > select"));
-      }
-    </script>
-  </body>
+    function changeNumber(number) {
+      document.getElementById("numberRange").innerHTML = number + " Verbs";
+    }
+
+    window.onload = async () => {
+      await applyList();
+      await changeOnly(document.querySelector("#selectVerbList > div > select"));
+      await preventNotSameListColumns(document.querySelector("#selectVerbList > div > select"));
+    }
+  </script>
+</body>
+
 </html>
