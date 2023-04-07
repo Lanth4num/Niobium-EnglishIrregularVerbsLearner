@@ -5,5 +5,6 @@ contextBridge.exposeInMainWorld('eAPI', {
     FileToArr: (fileName) => ipcRenderer.invoke('FileToArr', fileName),
     trainCreator: (settingObject) => ipcRenderer.invoke('createTest', settingObject),
     PDFCreator: (settingObject) => ipcRenderer.invoke('createPDF', settingObject),
-    getListMetadata: (list) => ipcRenderer.invoke('getListMetadata', list)
+    getListMetadata: (list) => ipcRenderer.invoke('getListMetadata', list),
+    importFile: () => ipcRenderer.invoke('importFile')
 })

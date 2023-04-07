@@ -149,11 +149,26 @@ function listFileToArr(fileName){
   return finalArr;
 };
 
+//function to import files : JSON and XSLX (converted)
+function importFile(){
+  const file = dialog.showOpenDialogSync({filters:[
+    {name:"Supported files :", extensions:["xlsx", "json"]}
+  ]});
+  if(file.endsWith(".xlsx")){
+    convertXLSXtoJSON(file);
+  } else if (file.endsWith(".json")){
+    
+  } else {
+    console.log("Error occured when choosing the file (probably wrong filetype)");
+  }
+}
+
 //Listen for app to be ready
 app.on('ready', ()=>{
 
   //IPCMAIN handle dialogs
   ipcMain.handle('checkLists', getLists);
+  ipcMain.handle('importFile', importFile);
   ipcMain.handle('createPDF', async (event, settingObject)=>{
     return createPDF(settingObject);
   });
@@ -206,12 +221,9 @@ app.on('ready', ()=>{
     slashes: true
   }));
   
-  for(file of fs.readdirSync(listsPath)){
-    file.endsWith(".xlsx") ? convertXLSXtoJSON(file) : null;
-  }
 });
 
-async function convertXLSXtoJSON(fileName){
+async function convertXLSXtoJSON(path){
   let object = {
     "metadata":{
       title:"",
@@ -219,10 +231,12 @@ async function convertXLSXtoJSON(fileName){
       columnTitle:[]
 	  }
   };
-  const fileContent = XLSX.readFile(path.join(listsPath, fileName));
+  const fileContent = XLSX.readFile(path);
   const fileSheets = fileContent.Sheets;
   const fileFirstSheet = fileSheets[fileContent.SheetNames[0]];
   let rawList = XLSX.utils.sheet_to_json(fileFirstSheet, {header: 1});
+  let dirs = path.split("//");
+  let fileName = dirs[dirs.length-1];
   object["metadata"]["title"] = fileName.replace(".xlsx", "");
   object["metadata"]["columnTitle"] = rawList.shift();
   object["list"] = rawList;

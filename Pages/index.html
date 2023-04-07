@@ -99,8 +99,9 @@
         });
       }
 
-      function importFromXLSX(){
-        console.log("Hi")
+      async function importFromXLSX(){
+        await window.eAPI.importFile();
+        console.log("The file has been selected and copied to the correct directory !");
       }
 
     </script>
