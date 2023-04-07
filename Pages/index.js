@@ -37,6 +37,8 @@ async function applyList(){
 	let elem = document.querySelector('.dropdown-trigger');
 	let dropdownInstance = M.Dropdown.getInstance(elem);
 	dropdownInstance.recalculateDimensions();
+
+	return selectInstance;
   }
 
   //function to convert array of object into HTML table
