@@ -5,6 +5,7 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 const Math = require('math');
 const pdfkit = require('pdfkit');
+const { log } = require('console');
 
 const{app, BrowserWindow, ipcMain, dialog} = electron;
 
@@ -150,14 +151,20 @@ function listFileToArr(fileName){
 };
 
 //function to import files : JSON and XSLX (converted)
-function importFile(){
-  const file = dialog.showOpenDialogSync({filters:[
+async function importFile(){
+  const files = dialog.showOpenDialogSync({filters:[
     {name:"Supported files :", extensions:["xlsx", "json"]}
   ]});
-  if(file.endsWith(".xlsx")){
-    convertXLSXtoJSON(file);
-  } else if (file.endsWith(".json")){
-    
+  const file = files[0];
+  let dirs = file.split("\\");
+  let fileName = dirs[dirs.length-1];
+
+  if(files == undefined){
+    return "Something went wrong !";
+  } else if(file.endsWith(".xlsx")){
+      await convertXLSXtoJSON(file);
+  } else if (file.endsWith(".json")){ 
+      fs.copyFileSync(file, path.join(listsPath, fileName));
   } else {
     console.log("Error occured when choosing the file (probably wrong filetype)");
   }
@@ -185,18 +192,18 @@ app.on('ready', ()=>{
   //check for the app Path and create it if not
   fs.mkdirSync(listsPath, {recursive:true});
   //check for the default.xlsx file
-  fs.open(path.join(listsPath, "Default.xlsx"), "wx", function(err, fd){
+  fs.open(path.join(listsPath, "Default.json"), "wx", function(err, fd){
     if(!err){
       //Create file if it does not exist
-      fs.open(path.join(listsPath, "Default.xlsx"), "w", function(err, fd){
+      fs.open(path.join(listsPath, "Default.json"), "w", function(err, fd){
         if(err){
           console.log(err);
         }
       });
-      fs.readFile(path.join(__dirname, "IrVerbsList.xlsx"), (err, fd)=>{
+      fs.readFile(path.join(__dirname, "IrVerbsList.json"), (err, fd)=>{
         if(err){console.log(err);}
         else {
-          fs.writeFile(path.join(listsPath, "Default.xlsx"), fd, function(err){if(err){console.log();}});
+          fs.writeFile(path.join(listsPath, "Default.json"), fd, function(err){if(err){console.log();}});
         }
       });
     };
@@ -223,7 +230,7 @@ app.on('ready', ()=>{
   
 });
 
-async function convertXLSXtoJSON(path){
+async function convertXLSXtoJSON(filePath){
   let object = {
     "metadata":{
       title:"",
@@ -231,14 +238,15 @@ async function convertXLSXtoJSON(path){
       columnTitle:[]
 	  }
   };
-  const fileContent = XLSX.readFile(path);
+  const fileContent = XLSX.readFile(filePath);
   const fileSheets = fileContent.Sheets;
   const fileFirstSheet = fileSheets[fileContent.SheetNames[0]];
   let rawList = XLSX.utils.sheet_to_json(fileFirstSheet, {header: 1});
-  let dirs = path.split("//");
+  let dirs = filePath.split("\\");
   let fileName = dirs[dirs.length-1];
   object["metadata"]["title"] = fileName.replace(".xlsx", "");
   object["metadata"]["columnTitle"] = rawList.shift();
   object["list"] = rawList;
+  console.log(path.join(listsPath, fileName.replace(".xlsx", ".json")));
   fs.writeFileSync(path.join(listsPath, fileName.replace(".xlsx", ".json")), JSON.stringify(object, null, "\t"));
 }
