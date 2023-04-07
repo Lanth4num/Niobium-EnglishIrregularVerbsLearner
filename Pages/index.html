@@ -83,7 +83,6 @@
 
       //check for click on reload button
       document.querySelector("#reloadButton").addEventListener('click', async () => {
-        applyList();
         newTable(await getSelectedList());
       })
       //check for the change event of select
@@ -101,6 +100,7 @@
 
       async function importFromXLSX(){
         await window.eAPI.importFile();
+        applyList();
         console.log("The file has been selected and copied to the correct directory !");
       }
 
