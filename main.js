@@ -5,6 +5,7 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 const Math = require('math');
 const pdfkit = require('pdfkit');
+const { log } = require('console');
 
 const{app, BrowserWindow, ipcMain, dialog} = electron;
 
@@ -37,17 +38,11 @@ async function createPDF(settingObject){
   let testObject = await createTest(settingObject);
   let tableData = [];
   for(let i in testObject){
-    let a = settingObject["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["header"].length) : settingObject["GivenVerbs"];
+    let a = settingObject["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["columnTitle"].length) : settingObject["GivenVerbs"];
     tableData.push([]);
     for(key of Object.keys(testObject[i])){
       tableData[i].push(key == Object.keys(testObject[i])[a] ? testObject[i][key] : "");
     }
-  }
-
-  //adding the Table Header
-  tableData.unshift([]);
-  for(key of Object.keys(testObject[0])){
-    tableData[0].push(key.toString());
   }
 
   // set up the table position and size
@@ -88,11 +83,11 @@ async function createTest(settingObject){
   //taking all verbs of lists
   for(file of settingObject["Lists"]){
     let f = await listFileToArr(file);
+    f.shift();
     for(verb of f){
       completeArr.push(verb);
     }
   }
-
   //selecting the verbs of the complete array
   //I can do that in a while loop
   for(let i=0; i<settingObject.numberOfVerbs; i++){
@@ -104,7 +99,10 @@ async function createTest(settingObject){
       completeArr.splice(a, 1);
     }
   }
-  // Fix the code so it detect when 2 verbs are the same, in diffrents files
+  //add the header
+  const tenses = await getListMetadata(settingObject["Lists"][0]);
+  finalArr.unshift(tenses["columnTitle"]);
+  // Fix the code so it detect when 2 verbs are the same, in different files
   return finalArr;
 }
 
@@ -114,40 +112,65 @@ async function getLists(){
   try{
     const filesArr = await fs.promises.readdir(listsPath);
     let fileArrFiltered = [];
-    for(file of filesArr){if(file.endsWith('.xlsx')){fileArrFiltered.push(file);}}
-    return filesArr;
-  }catch(err){console.log(err);return err}
+    for(file of filesArr){
+      if(file.endsWith('.json')){fileArrFiltered.push(file);}
+    }
+    return fileArrFiltered;
+  }catch(err){return err}
 };
 
 //function to get metadata of lists
 async function getListMetadata(list){
-  const file = XLSX.readFile(path.join(listsPath, list));
-  const data = XLSX.utils.sheet_to_json(file.Sheets[file.SheetNames[0]]);
-  return {"header" : Object.keys(data[0])};
+  const file = fs.readFileSync(path.join(listsPath, list));
+  const data = JSON.parse(file);
+  return data["metadata"];
 }
 
 
 //fuction to return an object from a listFile
-async function listFileToArr(fileName){
-  const fileContent = XLSX.readFile(path.join(listsPath, fileName));
-  const fileSheets = fileContent.Sheets;
-  const fileFirstSheet = fileSheets[fileContent.SheetNames[0]];
-  return XLSX.utils.sheet_to_json(fileFirstSheet);
+function listFileToArr(fileName){
+  let fileRawData = fs.readFileSync(path.join(listsPath, fileName));
+  let listObject = JSON.parse(fileRawData);
+  let finalArr = listObject["list"];
+  finalArr.unshift(listObject["metadata"]["columnTitle"]);
+  return finalArr;
 };
+
+//function to import files : JSON and XSLX (converted)
+async function importFile(){
+  const files = dialog.showOpenDialogSync({filters:[
+    {name:"Supported files :", extensions:["xlsx", "json"]}
+  ]});
+  const file = files[0];
+  let dirs = file.split("\\");
+  let fileName = dirs[dirs.length-1];
+
+  if(files == undefined){
+    return "Something went wrong !";
+  } else if(file.endsWith(".xlsx")){
+      await convertXLSXtoJSON(file);
+  } else if (file.endsWith(".json")){ 
+      fs.copyFileSync(file, path.join(listsPath, fileName));
+  } else {
+    console.log("Error occured when choosing the file (probably wrong filetype)");
+  }
+}
 
 //Listen for app to be ready
 app.on('ready', ()=>{
 
   //IPCMAIN handle dialogs
   ipcMain.handle('checkLists', getLists);
+  ipcMain.handle('importFile', importFile);
   ipcMain.handle('createPDF', async (event, settingObject)=>{
     return createPDF(settingObject);
   });
-  ipcMain.handle('FileToArr', async (event, fileName) => {
+  ipcMain.handle('FileToArr', (event, fileName) => {
     return listFileToArr(fileName);
   });
   ipcMain.handle('createTest', async(event, settingObject) => {
-    return createTest(settingObject);
+    const result = createTest(settingObject);
+    return result;
   });
   ipcMain.handle('getListMetadata', async(event, list) => {
     return getListMetadata(list);
@@ -155,18 +178,18 @@ app.on('ready', ()=>{
   //check for the app Path and create it if not
   fs.mkdirSync(listsPath, {recursive:true});
   //check for the default.xlsx file
-  fs.open(path.join(listsPath, "Default.xlsx"), "wx", function(err, fd){
+  fs.open(path.join(listsPath, "Default.json"), "wx", function(err, fd){
     if(!err){
       //Create file if it does not exist
-      fs.open(path.join(listsPath, "Default.xlsx"), "w", function(err, fd){
+      fs.open(path.join(listsPath, "Default.json"), "w", function(err, fd){
         if(err){
           console.log(err);
         }
       });
-      fs.readFile(path.join(__dirname, "IrVerbsList.xlsx"), (err, fd)=>{
+      fs.readFile(path.join(__dirname, "IrVerbsList.json"), (err, fd)=>{
         if(err){console.log(err);}
         else {
-          fs.writeFile(path.join(listsPath, "Default.xlsx"), fd, function(err){if(err){console.log();}});
+          fs.writeFile(path.join(listsPath, "Default.json"), fd, function(err){if(err){console.log();}});
         }
       });
     };
@@ -190,4 +213,26 @@ app.on('ready', ()=>{
     protocol:'file:',
     slashes: true
   }));
+  
 });
+
+async function convertXLSXtoJSON(filePath){
+  let object = {
+    "metadata":{
+      title:"",
+      description:"",
+      columnTitle:[]
+	  }
+  };
+  const fileContent = XLSX.readFile(filePath);
+  const fileSheets = fileContent.Sheets;
+  const fileFirstSheet = fileSheets[fileContent.SheetNames[0]];
+  let rawList = XLSX.utils.sheet_to_json(fileFirstSheet, {header: 1});
+  let dirs = filePath.split("\\");
+  let fileName = dirs[dirs.length-1];
+  object["metadata"]["title"] = fileName.replace(".xlsx", "");
+  object["metadata"]["columnTitle"] = rawList.shift();
+  object["list"] = rawList;
+  console.log(path.join(listsPath, fileName.replace(".xlsx", ".json")));
+  fs.writeFileSync(path.join(listsPath, fileName.replace(".xlsx", ".json")), JSON.stringify(object, null, "\t"));
+}
