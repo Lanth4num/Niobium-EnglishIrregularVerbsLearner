@@ -14,6 +14,7 @@ const listsPath = app.getPath("appData")+"\\IrVerbsApp\\Lists";
 
 //function to create PDF test from an object
 async function createPDF(settingObject){
+
   const doc = new pdfkit({size:"A4"});
   let xPos = 30;
   let yPos = 30;
@@ -94,7 +95,6 @@ async function createTest(settingObject){
     if(completeArr.length != 0){
       //choose a random number to get a random verb of the arr
       let a = Math.floor(Math.random() * completeArr.length);
-      //error it does not remove the good thing maybe ?
       finalArr.push(completeArr[a]);
       completeArr.splice(a, 1);
     }
