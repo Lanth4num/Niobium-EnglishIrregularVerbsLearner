@@ -33,29 +33,15 @@ async function createPDF(settingObject){
   addTextField(xPos + doc.widthOfString(Label), yPos + doc.heightOfString(Label)*0.75);
 
   //creating the array
+  const meta = await getListMetadata(settingObject["Lists"][0]);
   let testObject = await createTest(settingObject);
   let tableData = [];
   for(let i in testObject){
-    let a;
-    switch(settingObject["GivenVerbs"]){
-      case "Infinitive": a = 0 ;break;
-      case "Preterit": a = 1 ;break;
-      case "PastParticiple": a = 2 ;break;
-      case "Translation": a = 3; break;
-      case "Random": a = Math.floor(Math.random() * 4);break;
-      //setting random as default in case of an issue
-      default :  a = Math.floor(Math.random() * 4);break;
-    }
+    let a = settingObject["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["columnTitle"].length) : settingObject["GivenVerbs"];
     tableData.push([]);
     for(key of Object.keys(testObject[i])){
       tableData[i].push(key == Object.keys(testObject[i])[a] ? testObject[i][key] : "");
     }
-  }
-
-  //adding the Table Header
-  tableData.unshift([]);
-  for(key of Object.keys(testObject[0])){
-    tableData[0].push(key.toString());
   }
 
   // set up the table position and size
