@@ -82,10 +82,25 @@ async function createTest(settingObject){
   let finalArr =[];
   //taking all verbs of lists
   for(file of settingObject["Lists"]){
-    let f = await listFileToArr(file);
-    f.shift();
-    for(verb of f){
-      completeArr.push(verb);
+    //handle sublists
+    if(file.includes(":")){
+      let f = await listFileToArr(file.split(":")[0], false);
+      const meta = await getListMetadata(file, true);
+      const indexes = meta["indexes"];
+
+      console.log(f);
+
+      for(let index of indexes){
+        console.log(f[index])
+        completeArr.push(f[index]);
+      }
+
+    } else {
+      let f = await listFileToArr(file);
+      f.shift();
+      for(verb of f){
+        completeArr.push(verb);
+      }
     }
   }
   //selecting the verbs of the complete array
@@ -113,26 +128,57 @@ async function getLists(){
     const filesArr = await fs.promises.readdir(listsPath);
     let fileArrFiltered = [];
     for(file of filesArr){
-      if(file.endsWith('.json')){fileArrFiltered.push(file);}
+      if(file.endsWith('.json')){
+
+        // check if it has sublists
+        const File = fs.readFileSync(path.join(listsPath, file));
+        const data = JSON.parse(File);
+        
+        fileArrFiltered.push(data["sublists"] ? {"name":file,"sublists":data["sublists"].map(x => x["name"])} : file);
+      }
     }
     return fileArrFiltered;
   }catch(err){return err}
 };
 
 //function to get metadata of lists
-async function getListMetadata(list){
+async function getListMetadata(list, includesIndexForSublists = false){
+  let sublist;
+
+  if(list.includes(":")){
+    let arrList = list.split(":");
+    list = arrList[0];
+    sublist = arrList[1];
+  } else{
+    includesIndexForSublists = false;
+  }
   const file = fs.readFileSync(path.join(listsPath, list));
   const data = JSON.parse(file);
-  return data["metadata"];
+  let returnValue = data["metadata"];
+
+  if(includesIndexForSublists){
+    let indexes;
+    data["sublists"].forEach(element => {
+      if(element["name"] == sublist){
+        indexes = element["indexes"];
+      }
+    });
+    returnValue["indexes"] = indexes;
+    console.log(returnValue)
+  }
+
+  return returnValue;
 }
 
 
 //fuction to return an object from a listFile
-function listFileToArr(fileName){
+function listFileToArr(fileName, withHeader = true){
   let fileRawData = fs.readFileSync(path.join(listsPath, fileName));
   let listObject = JSON.parse(fileRawData);
   let finalArr = listObject["list"];
-  finalArr.unshift(listObject["metadata"]["columnTitle"]);
+  if(withHeader){
+    finalArr.unshift(listObject["metadata"]["columnTitle"]);
+  }
   return finalArr;
 };
 

@@ -20,13 +20,23 @@ function removeAllChild(parentNode){
 }
 
 //function to make the select list match list file
-async function applyList(){
+async function applyList(countSublists = true){
 	//remove all children of select
 	removeAllChild(document.querySelector('#selectVerbList select'));
 	const arr = await window.eAPI.listsGetter();
 	for(file of arr){
-	  //add filename to the dropdown with the value of i
-	  addElement('option', document.querySelector('#selectVerbList select'), file.replace('.json', '')).setAttribute('value', file.toString());
+	  //add filename to the dropdown with the value of filename
+	  if(typeof(file) == "object"){
+		//check for sublists
+		addElement('option', document.querySelector('#selectVerbList select'), file["name"].replace('.json', '')).setAttribute('value', file["name"]);
+		if(countSublists){	
+			for(sublist of file["sublists"]){
+				addElement('option', document.querySelector('#selectVerbList select'), sublist).setAttribute('value', file["name"] + ":" + sublist);
+			}
+		}
+	  }else if (typeof(file) == "string"){
+		addElement('option', document.querySelector('#selectVerbList select'), file.replace('.json', '')).setAttribute('value', file.toString());
+	  }
 	}
 	//fix so it takes the "Default" as default obviously
 	document.querySelector('#selectVerbList select').firstElementChild.setAttribute('selected', '');
