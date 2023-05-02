@@ -31,7 +31,8 @@ async function applyList(countSublists = true){
 		addElement('option', document.querySelector('#selectVerbList select'), file["name"].replace('.json', '')).setAttribute('value', file["name"]);
 		if(countSublists){	
 			for(sublist of file["sublists"]){
-				addElement('option', document.querySelector('#selectVerbList select'), sublist).setAttribute('value', file["name"] + ":" + sublist);
+				let subElement = addElement('option', document.querySelector('#selectVerbList select'), sublist);
+				subElement.setAttribute('value', file["name"] + ":" + sublist);
 			}
 		}
 	  }else if (typeof(file) == "string"){
@@ -46,6 +47,7 @@ async function applyList(countSublists = true){
 
 	let elem = document.querySelector('.dropdown-trigger');
 	let dropdownInstance = M.Dropdown.getInstance(elem);
+	console.log(dropdownInstance);
 	dropdownInstance.recalculateDimensions();
 
 	return selectInstance;
