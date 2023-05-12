@@ -28,10 +28,16 @@ async function applyList(countSublists = true){
 	  //add filename to the dropdown with the value of filename
 	  if(typeof(file) == "object"){
 		//check for sublists
-		addElement('option', document.querySelector('#selectVerbList select'), file["name"].replace('.json', '')).setAttribute('value', file["name"]);
+		//addElement('option', document.querySelector('#selectVerbList select'), file["name"].replace('.json', '')).setAttribute('value', file["name"]);
+		let optGroup = addElement('optgroup', document.querySelector('#selectVerbList select'));
+		optGroup.setAttribute("label", file["name"].replace('.json', ''))
+
+		//adding the all option in sublist that take the value of the entire list
+		addElement('option', optGroup, "All").setAttribute('value', file["name"])
+		
 		if(countSublists){	
 			for(sublist of file["sublists"]){
-				let subElement = addElement('option', document.querySelector('#selectVerbList select'), sublist);
+				let subElement = addElement('option', optGroup, sublist);
 				subElement.setAttribute('value', file["name"] + ":" + sublist);
 			}
 		}
@@ -41,13 +47,12 @@ async function applyList(countSublists = true){
 	}
 	//fix so it takes the "Default" as default obviously
 	document.querySelector('#selectVerbList select').firstElementChild.setAttribute('selected', '');
-
+	document.querySelector('#selectVerbList select').addEventListener("change", (e)=>{console.log(e)});
 	let elems = document.querySelectorAll('select');
 	let selectInstance = M.FormSelect.init(elems, {dropdownOptions:{hover:true}});
 
 	let elem = document.querySelector('.dropdown-trigger');
 	let dropdownInstance = M.Dropdown.getInstance(elem);
-	console.log(dropdownInstance);
 	dropdownInstance.recalculateDimensions();
 
 	return selectInstance;
