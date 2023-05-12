@@ -27,20 +27,25 @@ async function applyList(countSublists = true){
 	for(file of arr){
 	  //add filename to the dropdown with the value of filename
 	  if(typeof(file) == "object"){
-		//check for sublists
-		//addElement('option', document.querySelector('#selectVerbList select'), file["name"].replace('.json', '')).setAttribute('value', file["name"]);
-		let optGroup = addElement('optgroup', document.querySelector('#selectVerbList select'));
-		optGroup.setAttribute("label", file["name"].replace('.json', ''))
+	
+		if(countSublists){
+			
+			//check for sublists
+			let optGroup = addElement('optgroup', document.querySelector('#selectVerbList select'));
+			optGroup.setAttribute("label", file["name"].replace('.json', ''))
 
-		//adding the all option in sublist that take the value of the entire list
-		addElement('option', optGroup, "All").setAttribute('value', file["name"])
-		
-		if(countSublists){	
+			//adding the all option in sublist that take the value of the entire list
+			addElement('option', optGroup, "All").setAttribute('value', file["name"])
+				
 			for(sublist of file["sublists"]){
 				let subElement = addElement('option', optGroup, sublist);
 				subElement.setAttribute('value', file["name"] + ":" + sublist);
 			}
+
+		} else {
+			addElement('option', document.querySelector('#selectVerbList select'), file["name"].replace('.json', '')).setAttribute('value', file["name"]);
 		}
+		
 	  }else if (typeof(file) == "string"){
 		addElement('option', document.querySelector('#selectVerbList select'), file.replace('.json', '')).setAttribute('value', file.toString());
 	  }
