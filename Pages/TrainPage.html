@@ -192,19 +192,22 @@
           document.getElementById("numberRange").innerHTML = number + " Verbs";
       }
 
-      //function to prevent the selection of lists without the same column name/number
-      async function preventNotSameListColumns(e){
+      //function to prevent the selection of lists without the same column name/number and fix "all" in sublists
+      async function preventNotSameListColumns(selectElement){
+
+        var lastSublists = [];
 
         //run only if there is a value selected
-        if(e.value == ""){
-          e.querySelectorAll("option").forEach((option)=>{option.removeAttribute("disabled")});
-          let instance = M.FormSelect.init(e, {dropdownOptions:{hover:true}});
+        if(selectElement.value == ""){
+          selectElement.querySelectorAll("option").forEach((option)=>{option.removeAttribute("disabled")});
+          let instance = M.FormSelect.init(selectElement, {dropdownOptions:{hover:true}});
           return;
         }
-        let elem = document.querySelector('.dropdown-trigger');
-        const meta = e.value !== "" ? await window.eAPI.getListMetadata(e.value) : undefined;
 
-        for(option of e.querySelectorAll("option")){
+        let elem = document.querySelector('.dropdown-trigger');
+        const meta = selectElement.value !== "" ? await window.eAPI.getListMetadata(selectElement.value) : undefined;
+
+        for(option of selectElement.querySelectorAll("option")){
           option.removeAttribute("disabled");
           //check if length correspond and if each verb correspond
           let optionMeta = await window.eAPI.getListMetadata(option.value);
@@ -212,8 +215,10 @@
           for(tense in optionMeta["columnTitle"]){
             if(optionMeta["columnTitle"][tense] != meta["columnTitle"][tense]){option.setAttribute("disabled", true)}
           }
+
         }
-        let instance = M.FormSelect.init(e, {dropdownOptions:{hover:true}});
+
+        let instance = M.FormSelect.init(selectElement, {dropdownOptions:{hover:true}});
       }
 
       //function to change the "Only..." thing taking e (event) which is actually pretty useless
