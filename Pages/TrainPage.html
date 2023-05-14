@@ -196,11 +196,13 @@
       async function preventNotSameListColumns(selectElement){
 
         var lastSublists = [];
+        let selectInstance = M.FormSelect.getInstance(selectElement);
+        let selectedValues = selectInstance.getSelectedValues();
 
         //run only if there is a value selected
         if(selectElement.value == ""){
           selectElement.querySelectorAll("option").forEach((option)=>{option.removeAttribute("disabled")});
-          let instance = M.FormSelect.init(selectElement, {dropdownOptions:{hover:true}});
+          M.FormSelect.init(selectElement, {dropdownOptions:{hover:true}});
           return;
         }
 
@@ -208,17 +210,31 @@
         const meta = selectElement.value !== "" ? await window.eAPI.getListMetadata(selectElement.value) : undefined;
 
         for(option of selectElement.querySelectorAll("option")){
+          
           option.removeAttribute("disabled");
+
+          if(option.parentElement.tagName == "OPTGROUP" 
+            && selectedValues.includes(option.parentElement.getAttribute("label")+".json")
+            && option.value != option.parentElement.getAttribute("label")+".json"
+            ){
+            option.setAttribute("disabled", true);
+          }
+
           //check if length correspond and if each verb correspond
           let optionMeta = await window.eAPI.getListMetadata(option.value);
-          if(meta["columnTitle"].length != optionMeta["columnTitle"].length){option.setAttribute("disabled", true);continue;}
+          if(meta["columnTitle"].length != optionMeta["columnTitle"].length){
+            option.setAttribute("disabled", true);
+            continue;
+          }
           for(tense in optionMeta["columnTitle"]){
-            if(optionMeta["columnTitle"][tense] != meta["columnTitle"][tense]){option.setAttribute("disabled", true)}
+            if(optionMeta["columnTitle"][tense] != meta["columnTitle"][tense]){
+              option.setAttribute("disabled", true)
+            }
           }
 
         }
 
-        let instance = M.FormSelect.init(selectElement, {dropdownOptions:{hover:true}});
+        let instance = M.FormSelect.init(selectElement, {dropdownOptions:{hover:true,closeOnClick:false}});
       }
 
       //function to change the "Only..." thing taking e (event) which is actually pretty useless

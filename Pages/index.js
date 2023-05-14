@@ -52,7 +52,6 @@ async function applyList(countSublists = true){
 	}
 	//fix so it takes the "Default" as default obviously
 	document.querySelector('#selectVerbList select').firstElementChild.setAttribute('selected', '');
-	document.querySelector('#selectVerbList select').addEventListener("change", (e)=>{console.log(e)});
 	let elems = document.querySelectorAll('select');
 	let selectInstance = M.FormSelect.init(elems, {dropdownOptions:{hover:true}});
 
