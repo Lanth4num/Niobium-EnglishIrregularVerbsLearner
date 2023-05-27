@@ -64,7 +64,7 @@ async function applyList(countSublists = true){
 
   //function to convert array of object into HTML table
   function arrToHTMLTable(array, emptyStringToTextInput = false, autocorrect = false){
-	let workingArray = array.map(x => x)
+	let workingArray = array.map(x => x);
 
 	let tableHeader = document.createElement('thead');
 	// set the header

@@ -88,8 +88,6 @@ async function createTest(settingObject){
       const meta = await getListMetadata(file, true);
       const indexes = meta["indexes"];
 
-      console.log(f);
-
       for(let index of indexes){
         console.log(f[index])
         completeArr.push(f[index]);
@@ -141,6 +139,14 @@ async function getLists(){
   }catch(err){return err}
 };
 
+function getListSublists(list){
+
+  const file = fs.readFileSync(path.join(listsPath, list));
+  const data = JSON.parse(file);
+
+  return data["sublists"];
+}
+
 //function to get metadata of lists
 async function getListMetadata(list, includesIndexForSublists = false){
   let sublist;
@@ -164,7 +170,6 @@ async function getListMetadata(list, includesIndexForSublists = false){
       }
     });
     returnValue["indexes"] = indexes;
-    console.log(returnValue)
   }
 
   return returnValue;
@@ -208,6 +213,9 @@ app.on('ready', ()=>{
   //IPCMAIN handle dialogs
   ipcMain.handle('checkLists', getLists);
   ipcMain.handle('importFile', importFile);
+  ipcMain.handle('getSublists', (event, fileName) => {
+    return getListSublists(fileName);
+  });
   ipcMain.handle('createPDF', async (event, settingObject)=>{
     return createPDF(settingObject);
   });

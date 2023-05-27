@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <title>Irregular Verbs List</title>
+  </head>
+  <body>
+    <header>
+      <nav class="nav-extended">
+        <div class="nav-content">
+          <ul class="tabs tabs-transparent">
+            <li class="tab"><a href="index.html">Verbs List</a></li>
+            <li class="tab"><a href="TrainPage.html">Train</a></li>
+            <li class="tab"><a href="TestPage.html">Test</a></li>
+            <a href="editList.html" class="right active" style="height:inherit;width:fit-content;display:flex;align-items:center;justify-content: center;"><img src="icons/editing.png" alt="edit icon" width="30px" height="30px" style="margin-left:auto;margin-right:auto;"></a>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <div class="select-container">
+      <div class="input-field" id="selectVerbList">
+        <select><!--We'll put file names here--></select>
+      </div>
+      <a id="reloadButton"class="flex-buttons btn-floating btn-small waves-effect waves-light"><img src="icons/reload.png" alt="reload icon" style="width : 50%; height: 50%"/></a>
+      <a id="importButton"class="flex-buttons btn-floating btn-small waves-effect waves-light" onclick="importFromXLSX()"><img src="icons/import.png" alt="import icon" style="width : 60%; height: 60%"/></a>
+    </div>
+
+    <table class="striped">
+        <thead>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+      
+      <style>
+      th, td{
+        text-align: center;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      tr.has-sublists:after{
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 3px;
+        background-color: #66b1e8;
+      }
+
+      tr{
+        position:relative;
+      }
+
+      tr.selected{
+        background-color:rgba(0, 250, 154, 0.701) !important;
+      }
+
+      table{
+        position: relative;
+        left: 25%;
+        width: 50%;
+      }
+      .select-container{
+        display: flex;
+        position: absolute;
+        padding: 5px;
+        justify-content: space-between;
+        align-content: space-between;
+        align-items: center;
+        width: 20%;
+        right: 2.5%;
+      }
+      #selectVerbList{
+        width: 70%;
+        height: 100%;
+        flex-grow: 1;
+      }
+      .flex-buttons{
+        flex-shrink: 0;
+        margin-left: 10px;
+        min-width: 30px;
+        max-width: 30px;
+        min-height: 30px;
+        max-height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+    <script src="index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+
+      window.onload = async () =>{
+        newTable(await getSelectedList());
+     }
+
+      function rowOnClick(event){
+        console.log("called");
+        let row = event.target.parentElement;
+        if(row.classList.contains("selected")){
+          row.classList.remove("selected");
+        } else {
+          row.classList.add("selected");
+        }
+      }
+
+      async function getSelectedList(){
+        const a = await applyList(false);
+        return await a[0].getSelectedValues()[0];
+      }
+
+      //check for click on reload button
+      document.querySelector("#reloadButton").addEventListener('click', async () => {
+        newTable(await getSelectedList());
+      })
+      //check for the change event of select
+      document.querySelector('#selectVerbList select').addEventListener('change', (e) => newTable(e.target.value));
+
+      async function newTable(value){
+        const sublists = await window.eAPI.getSublists(value);
+        let sublistsIndexes = [];
+
+        if(sublists){
+          sublists.forEach((sublist) => {
+            sublistsIndexes = sublistsIndexes.concat(sublist["indexes"]);
+          });
+        }
+
+        window.eAPI.FileToArr(value).then(function(i){
+
+          let result = arrToHTMLTable(i);
+          const currentTable = document.querySelector('table');
+          removeAllChild(currentTable);
+
+          //header :
+          currentTable.appendChild(result[0]);
+
+          //body :
+          let body = currentTable.appendChild(result[1]);
+
+          //add classes to sublists in order to :after them
+          if(sublists){
+            body.querySelectorAll("tr").forEach((rowElement, index)=>{
+              if(sublistsIndexes.includes(index)){
+                rowElement.classList.add("has-sublists");
+              }
+            });
+          }
+
+          currentTable.querySelectorAll("tr").forEach((row) => {
+            row.addEventListener("click", rowOnClick)
+          });
+        });
+      }
+
+      async function importFromXLSX(){
+        await window.eAPI.importFile();
+        applyList(false);
+        console.log("The file has been selected and copied to the correct directory !");
+      }
+
+    </script>
+  </body>
+</html>

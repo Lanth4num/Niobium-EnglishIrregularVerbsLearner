@@ -72,7 +72,7 @@
             <div class="input-field col s12" id="selectVerbList">
               <select multiple name="Lists" onchange="changeOnly(this);preventNotSameListColumns(this)"></select>
             </div>
-            <a id="reloadButton"class="btn-floating btn-small waves-effect waves-light" onclick="applyList()"><i class="material-icons">refresh</i></a>
+            <a id="reloadButton"class="btn-floating btn-small waves-effect waves-light" onclick="applyList();preventNotSameListColumns(this)"><i class="material-icons">refresh</i></a>
           </div>
           <button class="btn waves-effect waves-light" id="createButton" type="submit" form="Form">Create</button>
       </form>
@@ -187,6 +187,8 @@
       //for Check Button
       let functionForCorrection = (e)=>{correct(e.target)};
       let Test;
+      let grade = 0;
+      let verbsMissed = 0;
 
       function changeNumber(number){
           document.getElementById("numberRange").innerHTML = number + " Verbs";
@@ -277,6 +279,8 @@
           while(rowElement.tagName != "TR"){
             rowElement = rowElement.parentNode;
           }
+          let tableElement = rowElement.parentElement;
+
 
           rowElement.querySelectorAll("td input").forEach((inputField)=>{number += inputField.value == "" ? 0 : 1});
           //check if all the line is completed
@@ -291,10 +295,17 @@
               }
               else if(rowValueArray[column].trim() == Test[rowNumber][column]){
                 valueToTextNode(rowNumber, column, true);
+                grade++;
               } else {
                 valueToTextNode(rowNumber, column , false, Test[rowNumber][column]);
+                verbsMissed++;
               }
             }
+          }
+          //check if the table is completed -> activate the VIEW GRADE button
+          if(tableElement.querySelector("input") == null){
+            let gradeButton = document.querySelector("#tableContainer > a");
+            gradeButton.classList.remove("disabled");
           }
         }
         number = undefined;
@@ -332,7 +343,6 @@
 
 
       async function createTest(object){
-  
         const value = await window.eAPI.trainCreator(object);
         Test = value;
 
@@ -355,14 +365,17 @@
         tableEl.setAttribute('class', 'striped centered');
         tableEl.appendChild(table[0]);
         tableEl.appendChild(table[1]);
+
         //add the correct button
         button = document.createElement("a");
-        button.appendChild(document.createTextNode("Check"));
+        button.appendChild(document.createTextNode(object["autocorrect"] ? "View Grade" : "Check"));
         button.setAttribute("class", "waves-effect waves-light btn-small");
-        button.setAttribute("style", "left:50%;transform : translate(-50%, 0); top:20px; ")
+        if(object["autocorrect"]){button.classList.add("disabled")}
+        button.setAttribute("style", "left:50%;transform : translate(-50%, 0); top:20px;");
         El.appendChild(button);
         //listen for the verify button
-        button.addEventListener("click", functionForCorrection);
+        button.addEventListener("click", object["autocorrect"] ? (e) => gradePopup((round(grade/(grade+verbsMissed) *20)).toString()) : functionForCorrection);
+                
       }
       
       //Function to verfify
@@ -380,7 +393,8 @@
               //if the verb is correct
               grade++;
               valueToTextNode(row, column, true);
-            } else {     
+            } else {
+              //if the verb is wrong
               verbsMissed++;
               valueToTextNode(row, column, false, Test[row][column])
             }
@@ -389,7 +403,6 @@
           
         }
         
-
         //remove button's eventListener
         button.removeEventListener("click", functionForCorrection );
         //change button Label
@@ -416,6 +429,8 @@
         let newOverlay = document.createElement("div");
         newOverlay.classList.add("overlay");
         document.querySelector("body").appendChild(newOverlay);
+        grade = 0;
+        verbsMissed = 0;
       }
 
 
