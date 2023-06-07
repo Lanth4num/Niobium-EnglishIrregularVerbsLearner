@@ -35,73 +35,92 @@
     </table>
       
       <style>
-      th, td{
-        text-align: center;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
 
-      tr.has-sublists:after{
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        width: 3px;
-        background-color: #66b1e8;
-      }
+        .button-center{
+          transform: translateX(-50%);
+          position: absolute;
+          left: 50%;right: -50%;
+        }
 
-      tr{
-        position:relative;
-      }
+        th, td{
+          text-align: center;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+        }
 
-      tr.selected{
-        background-color:rgba(0, 250, 154, 0.701) !important;
-      }
+        tr.has-sublists:after{
+          content: "";
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          right: 0;
+          width: 3px;
+          background-color: #66b1e8;
+        }
 
-      table{
-        position: relative;
-        left: 25%;
-        width: 50%;
-      }
-      .select-container{
-        display: flex;
-        position: absolute;
-        padding: 5px;
-        justify-content: space-between;
-        align-content: space-between;
-        align-items: center;
-        width: 20%;
-        right: 2.5%;
-      }
-      #selectVerbList{
-        width: 70%;
-        height: 100%;
-        flex-grow: 1;
-      }
-      .flex-buttons{
-        flex-shrink: 0;
-        margin-left: 10px;
-        min-width: 30px;
-        max-width: 30px;
-        min-height: 30px;
-        max-height: 30px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-    </style>
+        tr{
+          position:relative;
+        }
+
+        tr.selected{
+          background-color:rgba(0, 250, 154, 0.701) !important;
+        }
+
+        table{
+          position: relative;
+          left: 25%;
+          width: 50%;
+        }
+        .select-container{
+          display: flex;
+          position: absolute;
+          padding: 5px;
+          justify-content: space-between;
+          align-content: space-between;
+          align-items: center;
+          width: 20%;
+          right: 2.5%;
+        }
+        #selectVerbList{
+          width: 70%;
+          height: 100%;
+          flex-grow: 1;
+        }
+        .flex-buttons{
+          flex-shrink: 0;
+          margin-left: 10px;
+          min-width: 30px;
+          max-width: 30px;
+          min-height: 30px;
+          max-height: 30px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      </style>
     <script src="index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
 
       window.onload = async () =>{
         newTable(await getSelectedList());
-     }
+      }
+
+      function arrayToTableRow(array){
+        let newTR = document.createElement("tr");
+        for(element of array){
+          let newTD = document.createElement("td");
+          let newTextNode = document.createTextNode(element);
+          newTD.appendChild(newTextNode);
+          newTR.appendChild(newTD);
+        }
+
+        return newTR;
+      }
 
       function rowOnClick(event){
         console.log("called");
@@ -146,6 +165,13 @@
 
           //body :
           let body = currentTable.appendChild(result[1]);
+
+          //adding the "add line" button
+          let newButton = document.createElement("button");
+          let newTextNode = document.createTextNode("+");
+          newButton.classList.add("btn-floating", "waves-effect", "waves-light", "button-center", "btn-small");
+          newButton.appendChild(newTextNode);
+          currentTable.appendChild(newButton);
 
           //add classes to sublists in order to :after them
           if(sublists){

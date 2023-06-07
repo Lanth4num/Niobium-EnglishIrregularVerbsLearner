@@ -93,6 +93,7 @@
       function newTable(value){
         window.eAPI.FileToArr(value).then(function(i){
           let result = arrToHTMLTable(i);
+          console.log(result);
           const currentTable = document.querySelector('table');
           removeAllChild(currentTable);
           currentTable.appendChild(result[0]);
