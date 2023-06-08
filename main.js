@@ -18,6 +18,7 @@ async function createPDF(settingObject){
   const doc = new pdfkit({size:"A4"});
   let xPos = 30;
   let yPos = 30;
+  let spaceBetweenFields = 30;
   doc.save();
 
   const addTextField = (x, y) => {
@@ -29,28 +30,33 @@ async function createPDF(settingObject){
   };
   
   //creating the page Header
-  let Label = "Name:";
-  doc.text(Label, xPos, yPos);
-  addTextField(xPos + doc.widthOfString(Label), yPos + doc.heightOfString(Label)*0.75);
+  let Labels = ["Name:", "Date:", "Grade:"];
+  
+  for(let label of Labels){
+    doc.text(label, xPos, yPos);
+    addTextField(xPos + doc.widthOfString(label), yPos + doc.heightOfString(label)* 0.75);
+    xPos += doc.widthOfString(label) + 100 + spaceBetweenFields;
+  }
 
   //creating the array
   const meta = await getListMetadata(settingObject["Lists"][0]);
   let testObject = await createTest(settingObject);
   let tableData = [];
-  for(let i in testObject){
+  for(let i=1; i<testObject.length; i++){
     let a = settingObject["GivenVerbs"] == -1 ? Math.floor(Math.random() * meta["columnTitle"].length) : settingObject["GivenVerbs"];
     tableData.push([]);
     for(key of Object.keys(testObject[i])){
-      tableData[i].push(key == Object.keys(testObject[i])[a] ? testObject[i][key] : "");
+      tableData[i-1].push(key == Object.keys(testObject[i])[a] ? testObject[i][key] : "");
     }
   }
+  tableData.unshift(testObject[0]);
 
   // set up the table position and size
   const tableWidth = doc.page.width * 0.85;
   const cellHeight = 35;
   const cellWidth = tableWidth / tableData[0].length;
   const tableX = (doc.page.width - tableWidth)/2;
-  const tableY = tableX + yPos;
+  const tableY = tableX + 20;
   // loop through the table data and create the cells and borders
   for (let i = 0; i < tableData.length; i++) {
     for (let j = 0; j < tableData[i].length; j++) {
@@ -69,6 +75,8 @@ async function createPDF(settingObject){
     }
   }
 
+
+
   const pdfPath = dialog.showSaveDialogSync({filters: [{ name: 'PDF', extensions: ['pdf'] }]});
   doc.pipe(fs.createWriteStream(pdfPath));
   // end the document
@@ -76,7 +84,7 @@ async function createPDF(settingObject){
 }
 
 
-//function to create a test from an object, an 2 dimensional array is returned
+//function to create a test from an object, a 2 dimensional array is returned
 async function createTest(settingObject){
   let completeArr = [];
   let finalArr =[];
@@ -89,7 +97,6 @@ async function createTest(settingObject){
       const indexes = meta["indexes"];
 
       for(let index of indexes){
-        console.log(f[index])
         completeArr.push(f[index]);
       }
 
