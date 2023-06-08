@@ -20,6 +20,13 @@ async function createPDF(settingObject){
   let yPos = 30;
   let spaceBetweenFields = 30;
   doc.save();
+  
+  // set up the table position and size
+  const tableWidth = doc.page.width * 0.85;
+  const tableX = (doc.page.width - tableWidth)/2;
+  let tableY = tableX + 20;
+  const cellHeight = 30;
+
 
   const addTextField = (x, y) => {
     doc.fillColor('black')
@@ -31,12 +38,6 @@ async function createPDF(settingObject){
   
   //creating the page Header
   let Labels = ["Name:", "Date:", "Grade:"];
-  
-  for(let label of Labels){
-    doc.text(label, xPos, yPos);
-    addTextField(xPos + doc.widthOfString(label), yPos + doc.heightOfString(label)* 0.75);
-    xPos += doc.widthOfString(label) + 100 + spaceBetweenFields;
-  }
 
   //creating the array
   const meta = await getListMetadata(settingObject["Lists"][0]);
@@ -50,32 +51,45 @@ async function createPDF(settingObject){
     }
   }
   tableData.unshift(testObject[0]);
-
-  // set up the table position and size
-  const tableWidth = doc.page.width * 0.85;
-  const cellHeight = 35;
+  
   const cellWidth = tableWidth / tableData[0].length;
-  const tableX = (doc.page.width - tableWidth)/2;
-  const tableY = tableX + 20;
-  // loop through the table data and create the cells and borders
-  for (let i = 0; i < tableData.length; i++) {
-    for (let j = 0; j < tableData[i].length; j++) {
-      let xCell = tableX + (j * cellWidth);
-      let yCell = tableY + (i * cellHeight);
-      doc.rect(xCell, yCell, cellWidth, cellHeight).stroke();
-      let textWidth = doc.widthOfString(tableData[i][j]);
-      let textHeight = doc.heightOfString("u");
-      
-      if(i===0){
-        doc.font("Helvetica-Bold").text(tableData[i][j], xCell + (cellWidth-textWidth)/2,yCell + (cellHeight-textHeight/2)/2, {lineBreak: false});
-        doc.font("Helvetica");
-      } else {
-        doc.text(tableData[i][j], xCell + (cellWidth-textWidth)/2, yCell + (cellHeight-textHeight/2)/2, {lineBreak: false});
+  let calculatedY = tableY + (cellHeight*testObject.length);
+
+  createPartOfPDF();
+
+  if(calculatedY<(doc.page.height/2)-10){
+    xPos = 30;
+    yPos += doc.page.height/2;
+    tableY = tableX + doc.page.height/2 + 20;
+    createPartOfPDF();
+  }
+
+  function createPartOfPDF(){
+
+    for(let label of Labels){
+      doc.text(label, xPos, yPos);
+      addTextField(xPos + doc.widthOfString(label), yPos + doc.heightOfString(label)* 0.75);
+      xPos += doc.widthOfString(label) + 100 + spaceBetweenFields;
+    }
+
+    // loop through the table data and create the cells and borders
+    for (let i = 0; i < tableData.length; i++) {
+      for (let j = 0; j < tableData[i].length; j++) {
+        let xCell = tableX + (j * cellWidth);
+        let yCell = tableY + (i * cellHeight);
+        doc.rect(xCell, yCell, cellWidth, cellHeight).stroke();
+        let textWidth = doc.widthOfString(tableData[i][j]);
+        let textHeight = doc.heightOfString("u");
+        
+        if(i===0){
+          doc.font("Helvetica-Bold").text(tableData[i][j], xCell + (cellWidth-textWidth)/2,yCell + (cellHeight-textHeight/2)/2, {lineBreak: false});
+          doc.font("Helvetica");
+        } else {
+          doc.text(tableData[i][j], xCell + (cellWidth-textWidth)/2, yCell + (cellHeight-textHeight/2)/2, {lineBreak: false});
+        }
       }
     }
   }
-
-
 
   const pdfPath = dialog.showSaveDialogSync({filters: [{ name: 'PDF', extensions: ['pdf'] }]});
   doc.pipe(fs.createWriteStream(pdfPath));
