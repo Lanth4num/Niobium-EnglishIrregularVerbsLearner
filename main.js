@@ -59,7 +59,7 @@ async function createPDF(settingObject){
 
   if(calculatedY<(doc.page.height/2)-10){
     xPos = 30;
-    yPos += doc.page.height/2;
+    yPos += doc.page.height/2 -5;
     tableY = tableX + doc.page.height/2 + 20;
     createPartOfPDF();
   }
