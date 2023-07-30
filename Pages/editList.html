@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>Irregular Verbs List</title>
   </head>
   <body>
@@ -26,8 +27,15 @@
       <a id="reloadButton"class="flex-buttons btn-floating btn-small waves-effect waves-light"><img src="icons/reload.png" alt="reload icon" style="width : 50%; height: 50%"/></a>
       <a id="importButton"class="flex-buttons btn-floating btn-small waves-effect waves-light" onclick="importFromXLSX()"><img src="icons/import.png" alt="import icon" style="width : 60%; height: 60%"/></a>
     </div>
+    
+    <div id="leftPanel">
+    
+      <a class="waves-effect waves-light btn" onclick="SetEditMode()"><i class="material-icons left">edit</i> Edit</a>
+
+    </div>
 
     <table class="striped">
+        <!-- here will be the table-->
         <thead>
         </thead>
         <tbody>
@@ -36,10 +44,17 @@
       
       <style>
 
+        #leftPanel{
+          margin-top: 20px;
+          margin-left: 10px;
+          width: fit-content;
+        }
+
         .button-center{
           transform: translateX(-50%);
           position: absolute;
           left: 50%;right: -50%;
+          margin-top: 25px;
         }
 
         th, td{
@@ -106,8 +121,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
 
+      //setting up global variables
+      let EditMode = false;
+
+
       window.onload = async () =>{
         newTable(await getSelectedList());
+      }
+
+      function SetEditMode(){
+        EditMode = !EditMode;
       }
 
       function arrayToTableRow(array){
@@ -122,14 +145,31 @@
         return newTR;
       }
 
+      function textNodeToInputField(tdElement){
+
+        let textValue = tdElement.textContent;
+        let newInput = document.createElement("input");
+        newInput.setAttribute("type", "text");
+        newInput.setAttribute("style", `max-width : ${tdElement.offsetWidth*0.7}px; max-height : ${tdElement.offsetHeight* 0.9}`);
+        newInput.value = textValue;
+
+        tdElement.firstChild.remove();
+        tdElement.appendChild(newInput);
+        newInput.focus();
+      }
+
       function rowOnClick(event){
-        console.log("called");
+        
         let row = event.target.parentElement;
-        if(row.classList.contains("selected")){
+        
+        textNodeToInputField(event.target);
+
+        /*if(row.classList.contains("selected")){
           row.classList.remove("selected");
         } else {
           row.classList.add("selected");
-        }
+        }*/
+        
       }
 
       async function getSelectedList(){
